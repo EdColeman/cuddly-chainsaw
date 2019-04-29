@@ -14,19 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.edcoleman.core.api.event;
 
-import java.util.Map;
+package org.apache.edcoleman.cuddly_chainsaw.event.reporter;
 
-public class Event {
-
-  private String traceId;      // required
-  private String type;         // required
-  private String id1;          // required
-  private String id2;          // optional
-  private long sequenceNumber; // optional
-  private long timestamp;      // required
-
-  private Map<String,String> annotations;  // optional
+public interface Reporter {
 
 }
