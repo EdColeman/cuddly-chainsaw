@@ -22,6 +22,6 @@
     <groupId>org.apache.edcoleman.cuddly-chainsaw</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.edcoleman.cuddly-chainsaw</groupId>
-  <artifactId>event.reporter</artifactId>
+  <groupId>org.apache.edcoleman.cuddly-chainsaw.event-api</groupId>
+  <artifactId>reporter</artifactId>
 </project>

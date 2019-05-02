@@ -16,22 +16,7 @@
  */
 package org.apache.edcoleman.cuddly_chainsaw.event.core.api;
 
-import java.util.Map;
-import java.util.Optional;
+public interface EventAdmin {
 
-public interface Event {
 
-  public Id getTraceId();
-
-  public String getType();
-
-  public Id getId1();
-
-  public Optional<Id> getId2();
-
-  public Optional<Long> getSequenceNumber();
-
-  public Optional<Long> getTimestamp();
-
-  public Map<String,String> getAnnotations();
 }
