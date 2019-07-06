@@ -14,15 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.edcoleman.drop_util.message;
+package org.apache.edcoleman.drop_util.mode;
 
-public enum DropStates {
+import org.apache.edcoleman.drop_util.message.TableRecord;
 
-    UNKNOWN,
-    INITIAL,
-    READY,
-    DELETING,
-    DELETED,
-    FAILED
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
+public interface Selector extends Iterator<TableRecord> {
 }
