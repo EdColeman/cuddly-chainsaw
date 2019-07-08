@@ -14,11 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.edcoleman.drop_util.mode;
+package org.apache.edcoleman.drop_util.config;
 
-import org.apache.edcoleman.drop_util.message.TableRecord;
+public class FATETheshold {
 
-import java.util.Iterator;
+    public static class Limits {
+        private int maxDrops;
+        private int largeSlots;
+        private int ageSlots;
+        private int smallSlots;
 
-public interface Selector extends Iterator<TableRecord> {
+    }
+
 }

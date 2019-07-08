@@ -14,11 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.edcoleman.drop_util.mode;
+package org.apache.edcoleman.drop_util.control;
 
-import org.apache.edcoleman.drop_util.message.TableRecord;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.Iterator;
+public class BlackboardImpl implements Blackboard {
 
-public interface Selector extends Iterator<TableRecord> {
+    private static Logger log = LogManager.getLogger();
+
+    private static BlackboardImpl _instance;
+
+    private BlackboardImpl(){
+    }
+
+    public synchronized static Blackboard getInstance(){
+        if(_instance == null){
+            _instance = new BlackboardImpl();
+        }
+        return _instance;
+    }
 }

@@ -14,11 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.edcoleman.drop_util.mode;
+package org.apache.edcoleman.drop_util.control.rules;
 
-import org.apache.edcoleman.drop_util.message.TableRecord;
+import org.apache.edcoleman.drop_util.control.Blackboard;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface Selector extends Iterator<TableRecord> {
+public class Root {
+
+    private final List<Node> nodes = new ArrayList<>();
+
+    private final Blackboard blackboard;
+
+    public Root(final Blackboard blackboard){
+        this.blackboard = blackboard;
+    }
+
+    public boolean apply(){
+        return false;
+    }
+
 }
+

@@ -26,25 +26,26 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class TableSet {
 
-    private static class DefaultComparator implements Comparator<AtomicReference<TableRecord>> {
+    public class DefaultComparator implements Comparator<AtomicReference<TableRecord>>{
+
         @Override
         public int compare(AtomicReference<TableRecord> r1, AtomicReference<TableRecord> r2) {
-            return r1.get().getTableName().compareTo(r2.get().getTableName());
+            return r1.get().compareTo(r2.get());
         }
     }
 
-    public class SizeComparator extends DefaultComparator {
+    public class SizeComparator implements Comparator<AtomicReference<TableRecord>>{
         @Override
         public int compare(AtomicReference<TableRecord> r1, AtomicReference<TableRecord> r2) {
             int result = Long.compare(r1.get().getSize(), r2.get().getSize());
             if(result != 0){
                 return result;
             }
-            return super.compare(r1,r2);
+            return r1.get().compareTo(r2.get());
         }
     }
 
-    public static class NumTablesComparator extends DefaultComparator {
+    public static class NumTablesComparator implements Comparator<AtomicReference<TableRecord>>{
         @Override
         public int compare(AtomicReference<TableRecord> r1, AtomicReference<TableRecord> r2) {
             int result = Integer.compare(r1.get().getNumTablets(), r2.get().getNumTablets());
@@ -53,12 +54,12 @@ public class TableSet {
                 return result;
             }
 
-            return super.compare(r1,r2);
+            return r1.get().compareTo(r2.get());
         }
     }
 
 
-    private static class ByOldestQueued extends DefaultComparator {
+    private static class ByOldestQueued implements Comparator<AtomicReference<TableRecord>> {
 
         @Override
         public int compare(AtomicReference<TableRecord> r1, AtomicReference<TableRecord> r2) {
@@ -69,7 +70,7 @@ public class TableSet {
                 return result;
             }
 
-            return super.compare(r1,r2);
+            return r1.get().compareTo(r2.get());
         }
     }
 

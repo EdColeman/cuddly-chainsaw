@@ -19,10 +19,8 @@ package org.apache.edcoleman.drop_util.mode;
 import org.apache.edcoleman.drop_util.message.TableRecord;
 
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -33,7 +31,7 @@ public class Fifo implements Selector {
     private final Iterator<AtomicReference<TableRecord>> cursor;
     private final Set<AtomicReference<TableRecord>> tableView;
 
-    public Fifo(final Set<AtomicReference<TableRecord>> candidates){
+    public Fifo(final Set<AtomicReference<TableRecord>> candidates) {
         tableView = candidates;
         cursor = tableView.iterator();
     }
@@ -51,7 +49,7 @@ public class Fifo implements Selector {
 
     @Override
     public void remove() {
-       throw new UnsupportedOperationException("remove not allowed");
+        throw new UnsupportedOperationException("remove not allowed");
     }
 
     @Override

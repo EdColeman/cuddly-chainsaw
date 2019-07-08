@@ -14,11 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.edcoleman.drop_util.mode;
+package org.apache.edcoleman.drop_util.control;
 
-import org.apache.edcoleman.drop_util.message.TableRecord;
-
-import java.util.Iterator;
-
-public interface Selector extends Iterator<TableRecord> {
+public interface Blackboard {
 }

@@ -22,7 +22,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-public class TableRecord {
+public class TableRecord implements Comparable<TableRecord> {
 
     public static class Builder {
 
@@ -113,22 +113,43 @@ public class TableRecord {
         return numTablets;
     }
 
+    public static final Comparator<TableRecord> COMPARATOR =
+            Comparator.comparing(TableRecord::getTableName)
+            .thenComparing(TableRecord::getQueued)
+                .thenComparing(TableRecord::getState);
+
+    /**
+     * Sort by table name, queued timestamp and state to generate hashcode - consistent with equals.
+     * @param other a record to compare
+     * @return 0 if matches.
+     */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TableRecord that = (TableRecord) o;
-        return size == that.size &&
-                numTablets == that.numTablets &&
-                tableName.equals(that.tableName) &&
-                timestamp.equals(that.timestamp) &&
+    public int compareTo(TableRecord other) {
+        return COMPARATOR.compare(this, other);
+    }
+
+    /**
+     * Uses tablename, queued timestamp and state to determine if two TableRecords are equal.
+     * @param other to compare
+     * @return true if other is equal.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        TableRecord that = (TableRecord) other;
+        return tableName.equals(that.tableName) &&
                 Objects.equals(queued, that.queued) &&
                 state == that.state;
     }
 
+    /**
+     * Uses table name, queued timestamp and state to generate hashcode - consistent with equals.
+     * @return
+     */
     @Override
     public int hashCode() {
-        return Objects.hash(tableName, timestamp, queued, state, size, numTablets);
+        return Objects.hash(tableName, queued, state);
     }
 
     @Override

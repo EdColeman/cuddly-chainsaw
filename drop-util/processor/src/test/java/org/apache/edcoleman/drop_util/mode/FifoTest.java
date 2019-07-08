@@ -6,9 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,8 +16,13 @@ class FifoTest {
     @Test
     void emptySet() {
 
+        TableSet candidates = new TableSet();
 
-        // Fifo fifo = new Fifo(tableSet);
+        Fifo fifo = new Fifo(candidates.OrderedByOldestView());
+
+        assertAll("one entry",
+                () -> assertFalse(fifo.hasNext())
+        );
 
 
     }
@@ -45,7 +47,7 @@ class FifoTest {
     }
 
     @Test
-    void twoEntries() {
+    void multipleEntries() {
 
         TableSet candidates = new TableSet();
 
@@ -66,7 +68,7 @@ class FifoTest {
                     Instant prev = Instant.MIN;
                     while (fifo.hasNext()) {
                         Instant queued = fifo.next().getQueued();
-                        log.info("Prev {}, Queued {} is {}", prev, queued, prev.isBefore(queued));
+                        log.trace("Prev {}, Queued {} is {}", prev, queued, prev.isBefore(queued));
                         assertTrue(prev.isBefore(queued));
                         prev = queued;
 
