@@ -16,15 +16,22 @@
  */
 package org.apache.edcoleman.drop_util.control.rules;
 
-public class HealthCheck extends BaseNode {
+import java.util.Comparator;
 
+public abstract class BaseNode implements Node {
 
-    public HealthCheck(){
-        super(new NodePriority(NodePriority.LOWEST, "heathcheck"), "blah");
+    private final NodePriority priority;
+
+    public BaseNode(final NodePriority priority, final String info) {
+        this.priority = priority;
     }
 
     @Override
-    public boolean apply(){
-        return true;
+    public NodePriority getPriority() {
+        return priority;
     }
+
+    @Override
+    public abstract boolean apply();
+
 }

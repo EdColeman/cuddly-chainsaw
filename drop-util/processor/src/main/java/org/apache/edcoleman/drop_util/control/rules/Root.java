@@ -18,12 +18,11 @@ package org.apache.edcoleman.drop_util.control.rules;
 
 import org.apache.edcoleman.drop_util.control.Blackboard;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Root {
 
-    private final List<Node> nodes = new ArrayList<>();
+    private final Set<Node> nodes = new TreeSet<>(new PriorityComparator());
 
     private final Blackboard blackboard;
 
@@ -32,8 +31,31 @@ public class Root {
     }
 
     public boolean apply(){
-        return false;
+
+        // assuming sequence - success on all children, fail or running on one child.
+        for (Node node: nodes) {
+             if(!node.apply()){
+                 return false;
+             }
+        }
+
+        return true;
     }
 
+    public void addNode(Node node){
+        nodes.add(node);
+    }
+
+    public static class PriorityComparator implements Comparator<Node> {
+
+        @Override
+        public int compare(Node p1, Node p2) {
+            if(p2 == null){
+                return 1;
+            }
+            return p1.getPriority().compareTo(p2.getPriority());
+        }
+
+    }
 }
 

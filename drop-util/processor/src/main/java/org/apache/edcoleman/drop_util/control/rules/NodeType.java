@@ -16,15 +16,7 @@
  */
 package org.apache.edcoleman.drop_util.control.rules;
 
-public class HealthCheck extends BaseNode {
+public class NodeType {
 
 
-    public HealthCheck(){
-        super(new NodePriority(NodePriority.LOWEST, "heathcheck"), "blah");
-    }
-
-    @Override
-    public boolean apply(){
-        return true;
-    }
 }

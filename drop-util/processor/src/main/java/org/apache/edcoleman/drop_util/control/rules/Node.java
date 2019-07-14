@@ -18,6 +18,9 @@ package org.apache.edcoleman.drop_util.control.rules;
 
 public interface Node {
 
+    NodePriority getPriority();
+
+
     boolean apply();
 
 }
