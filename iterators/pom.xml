@@ -21,7 +21,7 @@
   <artifactId>iterators</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <description>Sample app using events to monitor Accumulo FATE transactions</description>
+  <description>Sample iterators</description>
   <properties>
     <accumulo.version>1.9.3</accumulo.version>
     <hadoop.version>2.9.2</hadoop.version>

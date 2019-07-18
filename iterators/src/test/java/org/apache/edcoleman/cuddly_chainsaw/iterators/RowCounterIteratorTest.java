@@ -60,15 +60,20 @@ class RowCounterIteratorTest {
 
         // create data
         int numRows = 20;
-        int numValsPerRow = 5;
+        int numValsPerRow = 6;
 
-        Text colFam = new Text("ColFam1");
+        // Text colFam = new Text("ColFam1");
         ColumnVisibility colVis = new ColumnVisibility("public");
 
         for(int i = 0; i < numRows; i++){
             for(int j = 0; j < numValsPerRow; j++){
                 Text rowId = new Text(String.format("r:%03d", i));
-                Text colQual = new Text(String.format("%03d", j));
+
+                Text colQual = new Text(String.format("%08x", (7919 * ((619 * i) ^ (1471 * j)))));
+
+                // Text colQual = new Text(String.format("%03d", j));
+                Text colFam = new Text(String.format("ColFam-%01d", (j % 2)+1));
+
                 long timestamp = System.currentTimeMillis();
 
                 Value v = new Value(String.format("%03d:%016X", i, timestamp).getBytes());
@@ -89,7 +94,7 @@ class RowCounterIteratorTest {
 
         for(Map.Entry<Key,Value> entry : scanner){
             Text row = entry.getKey().getRow();
-            System.out.println("R: " + row.toString());
+            System.out.println("R: " + row.toString() + " : " + entry.getKey().toString());
         }
 
         scanner.close();
