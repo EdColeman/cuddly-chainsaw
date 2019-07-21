@@ -18,9 +18,22 @@ package org.apache.edcoleman.drop_util.control.rules;
 
 public interface Node {
 
+    enum Type {
+        SEQUENCE,
+        SELECTOR
+    }
+
+    enum State {
+        INIT,
+        RUNNING,
+        SUCCESS,
+        FAIL
+    }
+
     NodePriority getPriority();
 
 
-    boolean apply();
+    State tick();
 
 }
+

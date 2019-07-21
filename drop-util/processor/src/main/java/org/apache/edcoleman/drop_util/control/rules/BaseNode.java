@@ -32,6 +32,6 @@ public abstract class BaseNode implements Node {
     }
 
     @Override
-    public abstract boolean apply();
+    public abstract boolean tick();
 
 }

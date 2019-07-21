@@ -24,7 +24,7 @@ public class HealthCheck extends BaseNode {
     }
 
     @Override
-    public boolean apply(){
+    public boolean tick(){
         return true;
     }
 }

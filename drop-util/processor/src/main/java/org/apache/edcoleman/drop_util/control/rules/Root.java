@@ -34,7 +34,7 @@ public class Root {
 
         // assuming sequence - success on all children, fail or running on one child.
         for (Node node: nodes) {
-             if(!node.apply()){
+             if(!node.tick()){
                  return false;
              }
         }
