@@ -25,7 +25,7 @@
         <Root level="error" additivity="false">
             <AppenderRef ref="Console"/>
         </Root>
-        <Logger name="org.apache.edcoleman" level="info" additivity="false">
+        <Logger name="org.apache.edcoleman" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="h2database" level="info" additivity="false">
