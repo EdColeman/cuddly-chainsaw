@@ -27,5 +27,8 @@ hs_err_pid*
 # Intellij
 .idea/
 *.iml
+*.ipr
 *.iws
+.idea
+.attach_pid*
 

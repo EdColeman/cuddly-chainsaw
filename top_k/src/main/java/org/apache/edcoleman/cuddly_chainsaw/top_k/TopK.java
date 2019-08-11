@@ -17,13 +17,15 @@
 package org.apache.edcoleman.cuddly_chainsaw.top_k;
 
 import java.util.PriorityQueue;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class TopK {
 
     private int maxItems = 10;
     private int reportingThreshold = 2;
 
-    private PriorityQueue<ValueCounter> topValueCounters = new PriorityQueue<>();
+    private TreeSet<ValueCounter> topValueCounters = new TreeSet<>();
 
     public TopK(){
 
