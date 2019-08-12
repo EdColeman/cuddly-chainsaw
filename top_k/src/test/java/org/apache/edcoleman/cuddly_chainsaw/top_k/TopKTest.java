@@ -1,5 +1,8 @@
 package org.apache.edcoleman.cuddly_chainsaw.top_k;
 
+import org.apache.hadoop.io.Text;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -9,28 +12,31 @@ import java.security.SecureRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TopKTest {
-
+    private final Logger log = LogManager.getLogger();
     @Test
     public void emptyTest() {
 
         TopK topK = new TopK();
 
-        BigInteger seed = BigInteger.valueOf(961834403L);
-        SecureRandom r = new SecureRandom( );
+        topK.add(new Text("1"), new Text(""));
+        topK.add(new Text("1"), new Text(""));
+        topK.add(new Text("1"), new Text(""));
+        topK.add(new Text("2"), new Text(""));
+        topK.add(new Text("2"), new Text(""));
+        topK.add(new Text("3"), new Text(""));
+        topK.add(new Text("4"), new Text(""));
+        topK.add(new Text("5"), new Text(""));
+        topK.add(new Text("6"), new Text(""));
+        topK.add(new Text("7"), new Text(""));
+        topK.add(new Text("8"), new Text(""));
+        topK.add(new Text("9"), new Text(""));
+        topK.add(new Text("10"), new Text(""));
+        topK.add(new Text("11"), new Text(""));
+        topK.add(new Text("12"), new Text(""));
+        topK.add(new Text("13"), new Text(""));
+        topK.add(new Text("14"), new Text(""));
 
-        byte[] bytes = new byte[Integer.BYTES];
-
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-
-        for(int x = 0;  x < 16; x++){
-            r.nextBytes(bytes);
-            buffer.put(bytes,0,bytes.length);
-            buffer.flip();
-            System.out.println(String.format("0x%08X", new Integer(buffer.getInt())));
-            buffer.clear();
-        }
+        log.debug("Top: {}", topK.getTopK());
     }
-
-
 }
 

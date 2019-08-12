@@ -23,6 +23,8 @@ import org.apache.hadoop.util.hash.MurmurHash;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 
 public class CountMinSketch {
 
@@ -153,5 +155,26 @@ public class CountMinSketch {
                 out.writeLong(counters[h][b]);
             }
         }
+    }
+
+    public static int[] seedGenerator(){
+
+        int[] seeds = new int[16];
+
+        SecureRandom r = new SecureRandom( );
+
+        byte[] bytes = new byte[Integer.BYTES];
+
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+
+        for(int x = 0;  x < seeds.length; x++){
+            r.nextBytes(bytes);
+            buffer.put(bytes,0,bytes.length);
+            buffer.flip();
+            seeds[x] = buffer.getInt();
+            buffer.clear();
+        }
+
+        return seeds;
     }
 }

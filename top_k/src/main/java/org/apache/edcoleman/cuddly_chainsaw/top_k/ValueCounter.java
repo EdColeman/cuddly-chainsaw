@@ -16,58 +16,7 @@
  */
 package org.apache.edcoleman.cuddly_chainsaw.top_k;
 
-import org.apache.accumulo.core.data.Key;
-import org.apache.hadoop.io.Text;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 public class ValueCounter {
 
-    long count = 0;
-    Map<Text,Long> colFamCounts = new HashMap<>();
-
-    // private final Text noCF = new Text("");
-
-    public void update(final Key key){
-        count++;
-
-        Text cf = key.getColumnFamily();
-
-        Long cfCount = colFamCounts.get(cf);
-
-        if(cfCount == null){
-            colFamCounts.put(cf, 1L);
-        } else {
-            colFamCounts.put(cf, ++cfCount);
-        }
-    }
-
-    public long getTotalCount() {
-        return count;
-    }
-
-    public int getNumCFs(){
-        return colFamCounts.size();
-    }
-
-    public Set<Text> getCfNames(){
-        return colFamCounts.keySet();
-    }
-
-    public long getCfCount(final Text cfName){
-        Long v = colFamCounts.get(cfName);
-        if(v == null){
-            return -1;
-        }
-
-        return v;
-    }
-
-    public Set<Map.Entry<Text,Long>> getCfCounts(){
-        return Collections.unmodifiableSet(colFamCounts.entrySet());
-    }
 
 }

@@ -125,7 +125,14 @@ class CountMinSketchTest {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
 
+    @Test public void seedGen(){
 
+        int[] seeds = CountMinSketch.seedGenerator();
+
+        for(int x = 0;  x < seeds.length; x++){
+            System.out.println(String.format("0x%08X", seeds[x]));
+        }
     }
 }
