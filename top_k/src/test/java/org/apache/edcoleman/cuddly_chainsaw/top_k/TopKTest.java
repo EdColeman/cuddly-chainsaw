@@ -18,23 +18,23 @@ class TopKTest {
 
         TopK topK = new TopK();
 
-        topK.add(new Text("1"), new Text(""));
-        topK.add(new Text("1"), new Text(""));
-        topK.add(new Text("1"), new Text(""));
-        topK.add(new Text("2"), new Text(""));
-        topK.add(new Text("2"), new Text(""));
-        topK.add(new Text("3"), new Text(""));
-        topK.add(new Text("4"), new Text(""));
-        topK.add(new Text("5"), new Text(""));
-        topK.add(new Text("6"), new Text(""));
-        topK.add(new Text("7"), new Text(""));
-        topK.add(new Text("8"), new Text(""));
-        topK.add(new Text("9"), new Text(""));
-        topK.add(new Text("10"), new Text(""));
-        topK.add(new Text("11"), new Text(""));
-        topK.add(new Text("12"), new Text(""));
-        topK.add(new Text("13"), new Text(""));
-        topK.add(new Text("14"), new Text(""));
+        topK.add(new Text("1"));
+        topK.add(new Text("1"));
+        topK.add(new Text("1"));
+        topK.add(new Text("2"));
+        topK.add(new Text("2"));
+        topK.add(new Text("3"));
+        topK.add(new Text("4"));
+        topK.add(new Text("5"));
+        topK.add(new Text("6"));
+        topK.add(new Text("7"));
+        topK.add(new Text("8"));
+        topK.add(new Text("9"));
+        topK.add(new Text("10"));
+        topK.add(new Text("11"));
+        topK.add(new Text("12"));
+        topK.add(new Text("13"));
+        topK.add(new Text("14"));
 
         log.debug("Top: {}", topK.getTopK());
     }
