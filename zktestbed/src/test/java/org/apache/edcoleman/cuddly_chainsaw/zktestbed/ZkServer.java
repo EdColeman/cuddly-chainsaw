@@ -2,17 +2,12 @@ package org.apache.edcoleman.cuddly_chainsaw.zktestbed;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.client.FourLetterWordMain;
-import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServerMain;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 
 public class ZkServer {
 
@@ -42,6 +37,7 @@ public class ZkServer {
       new Thread() {
         public void run() {
           try {
+            log.info("Starting zookeeper server");
             ServerConfig config = new ServerConfig();
             config.parse(file.getAbsolutePath());
             new ZooKeeperServerMain().runFromConfig(config);
@@ -53,8 +49,8 @@ public class ZkServer {
 
       //server = new ZooKeeperServer(dir, dir, tickTime);
 
-      ServerCnxnFactory standaloneServerFactory = ServerCnxnFactory
-          .createFactory(0, numConnections);
+//      ServerCnxnFactory standaloneServerFactory = ServerCnxnFactory
+//          .createFactory(0, numConnections);
 
       //zkPort = standaloneServerFactory.getLocalPort();
 
@@ -79,29 +75,6 @@ public class ZkServer {
   //  private void close() {
   //    server.shutdown();
   //  }
-
-  private static class ZkClient {
-
-    private ZooKeeper zoo;
-    CountDownLatch connectionLatch = new CountDownLatch(1);
-
-    public ZooKeeper connect(String host) throws IOException, InterruptedException {
-      zoo = new ZooKeeper(host, 2000, new Watcher() {
-        public void process(WatchedEvent we) {
-          if (we.getState() == Event.KeeperState.SyncConnected) {
-            connectionLatch.countDown();
-          }
-        }
-      });
-
-      connectionLatch.await();
-      return zoo;
-    }
-
-    public void close() throws InterruptedException {
-      zoo.close();
-    }
-  }
 
   public static void main(String[] args) throws Exception {
 
