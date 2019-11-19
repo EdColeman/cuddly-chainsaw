@@ -1,6 +1,7 @@
 package org.apache.edcoleman.cuddly_chainsaw.zktestbed;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,7 +23,10 @@ public class PropPayload {
 
   private final static Logger log = LogManager.getLogger();
 
-  private static Gson gson = new Gson();
+  private final static Gson gson = new Gson();
+
+  private static final TypeToken<Map<String,PropValue>> gsonDataType = new TypeToken<>() {
+  };
 
   // number of bytes used to pad output arrays to prevent resizing.
   private static final int BUF_PADDING = 64;
@@ -104,15 +108,13 @@ public class PropPayload {
       switch (propPayload.compressionType) {
         case NONE:
           String json = in.readUTF();
-          propPayload.props.putAll(gson.fromJson(json, propPayload.props.getClass()));
+          propPayload.props.putAll(gson.fromJson(json, gsonDataType.getType()));
           break;
         case GZIP:
           byte[] a = in.readAllBytes();
           GZIPInputStream gin = new GZIPInputStream(new ByteArrayInputStream(a));
-          Reader r = new InputStreamReader(gin);
-
-          Map<String,PropValue> m = gson.fromJson(r, propPayload.props.getClass());
-          propPayload.props.putAll(m);
+          Reader reader = new InputStreamReader(gin);
+          propPayload.props.putAll(gson.fromJson(reader, gsonDataType.getType()));
 
           return propPayload;
 

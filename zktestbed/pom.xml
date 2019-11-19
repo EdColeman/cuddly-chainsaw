@@ -23,7 +23,7 @@
   <packaging>jar</packaging>
   <description>zookeeper functional confirmation - validate zookeeper operation assumptions</description>
   <properties>
-    <accumulo.version>1.9.3</accumulo.version>
+    <accumulo.version>2.1.0-SNAPSHOT</accumulo.version>
     <hadoop.version>2.9.2</hadoop.version>
     <junit.version>5.5.1</junit.version>
     <log4j.version>2.12.1</log4j.version>
