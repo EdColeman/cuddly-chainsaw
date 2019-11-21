@@ -1,6 +1,7 @@
 package org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl;
 
 import org.apache.accumulo.core.data.TableId;
+import org.apache.edcoleman.cuddly_chainsaw.zktestbed.PropScope;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.PropValue;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.TableConfigStore;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class InMemBackingStoreTest {
     String propName = "a.global.property";
     PropValue v = new PropValue("a.value");
 
-    store.setProperty(TableConfigStore.Scope.SYSTEM, Optional.empty(), propName, v);
+    store.setProperty(PropScope.SYSTEM, Optional.empty(), propName, v);
 
     Optional<PropValue> r = store.getProperty( id, propName);
     assertEquals(v, r.get());
@@ -41,8 +42,8 @@ class InMemBackingStoreTest {
     String tablePropName = "a.table.property";
     PropValue tv = new PropValue("t.value");
 
-    store.setProperty(TableConfigStore.Scope.SYSTEM, Optional.empty(), propName, gv);
-    store.setProperty(TableConfigStore.Scope.TABLE, Optional.of(id), tablePropName, tv);
+    store.setProperty(PropScope.SYSTEM, Optional.empty(), propName, gv);
+    store.setProperty(PropScope.TABLE, Optional.of(id), tablePropName, tv);
 
     Optional<PropValue> r = store.getProperty( id, tablePropName);
     assertEquals(tv, r.get());

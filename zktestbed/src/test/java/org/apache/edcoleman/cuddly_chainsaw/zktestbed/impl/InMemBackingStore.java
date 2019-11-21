@@ -2,6 +2,7 @@ package org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl;
 
 import org.apache.accumulo.core.data.TableId;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.BackingStore;
+import org.apache.edcoleman.cuddly_chainsaw.zktestbed.PropScope;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.PropValue;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.TableConfigStore;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.TableProps;
@@ -19,7 +20,7 @@ public class InMemBackingStore implements TableConfigStore, BackingStore {
 
   }
 
-  public void setProperty(final Scope scope, Optional<TableId> tableId, final String name,
+  public void setProperty(final PropScope scope, Optional<TableId> tableId, final String name,
       final PropValue v) {
 
     switch (scope) {

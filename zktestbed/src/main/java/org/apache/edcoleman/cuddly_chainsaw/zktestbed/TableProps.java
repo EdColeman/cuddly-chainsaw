@@ -2,7 +2,7 @@ package org.apache.edcoleman.cuddly_chainsaw.zktestbed;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sun.istack.NotNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.accumulo.core.data.TableId;
 
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TableProps implements Map<String, PropValue> {
+public class TableProps implements Map<String,PropValue> {
 
   private final PropScope scope;
   private final TableId tableId;
@@ -23,17 +23,16 @@ public class TableProps implements Map<String, PropValue> {
   private final ReentrantReadWriteLock.ReadLock rlock = rwLock.readLock();
   private final ReentrantReadWriteLock.WriteLock wlock = rwLock.writeLock();
 
-
-  private TableProps(final PropScope scope, final TableId tableId){
+  private TableProps(final PropScope scope, final TableId tableId) {
     this.scope = scope;
     this.tableId = tableId;
   }
 
-  public static TableProps forTableId(final TableId tableId){
+  public static TableProps forTableId(final TableId tableId) {
     return new TableProps(PropScope.TABLE, tableId);
   }
 
-  public static TableProps forSystem(){
+  public static TableProps forSystem() {
     return new TableProps(PropScope.SYSTEM, null);
   }
 
@@ -41,7 +40,7 @@ public class TableProps implements Map<String, PropValue> {
     rlock.lock();
     try {
       return delegateMap.size();
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
@@ -50,7 +49,7 @@ public class TableProps implements Map<String, PropValue> {
     rlock.lock();
     try {
       return delegateMap.isEmpty();
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
@@ -59,7 +58,7 @@ public class TableProps implements Map<String, PropValue> {
     rlock.lock();
     try {
       return delegateMap.containsKey(key);
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
@@ -68,7 +67,7 @@ public class TableProps implements Map<String, PropValue> {
     rlock.lock();
     try {
       return delegateMap.containsValue(value);
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
@@ -77,7 +76,7 @@ public class TableProps implements Map<String, PropValue> {
     rlock.lock();
     try {
       return delegateMap.get(key);
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
@@ -86,7 +85,7 @@ public class TableProps implements Map<String, PropValue> {
     wlock.lock();
     try {
       return delegateMap.put(key, value);
-    }finally{
+    } finally {
       wlock.unlock();
     }
   }
@@ -95,16 +94,16 @@ public class TableProps implements Map<String, PropValue> {
     wlock.lock();
     try {
       return delegateMap.remove(key);
-    }finally{
+    } finally {
       wlock.unlock();
     }
   }
 
-  @Override public void putAll(Map<? extends String,? extends PropValue> m) {
+  @Override public void putAll(@NonNull Map<? extends String,? extends PropValue> m) {
     wlock.lock();
     try {
       delegateMap.putAll(m);
-    }finally{
+    } finally {
       wlock.unlock();
     }
   }
@@ -113,34 +112,34 @@ public class TableProps implements Map<String, PropValue> {
     wlock.lock();
     try {
       delegateMap.clear();
-    }finally{
+    } finally {
       wlock.unlock();
     }
   }
 
-  @Override public Set<String> keySet() {
+  @Override @NonNull public Set<String> keySet() {
     rlock.lock();
     try {
       return Collections.unmodifiableSet(delegateMap.keySet());
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
 
-  @Override public Collection<PropValue> values() {
+  @Override @NonNull public Collection<PropValue> values() {
     rlock.lock();
     try {
       return Collections.unmodifiableCollection(delegateMap.values());
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
 
-  @Override public Set<Entry<String,PropValue>> entrySet() {
+  @Override @NonNull public Set<Entry<String,PropValue>> entrySet() {
     rlock.lock();
     try {
       return Collections.unmodifiableSet(delegateMap.entrySet());
-    }finally{
+    } finally {
       rlock.unlock();
     }
   }
@@ -148,9 +147,10 @@ public class TableProps implements Map<String, PropValue> {
   @Override public String toString() {
     rlock.lock();
     try {
-      return new StringJoiner(", ", TableProps.class.getSimpleName() + "[", "]").add("scope=" + scope)
-          .add("tableId=" + tableId).add("delegateMap=" + delegateMap).toString();
-    }finally{
+      return new StringJoiner(", ", TableProps.class.getSimpleName() + "[", "]")
+          .add("scope=" + scope).add("tableId=" + tableId).add("delegateMap=" + delegateMap)
+          .toString();
+    } finally {
       rlock.unlock();
     }
   }
