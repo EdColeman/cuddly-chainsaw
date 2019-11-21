@@ -1,82 +1,163 @@
 package org.apache.edcoleman.cuddly_chainsaw.zktestbed;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.sun.istack.NotNull;
 import org.apache.accumulo.core.data.TableId;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TableProps implements Map<String, PropValue> {
 
-  private final TableConfigStore.Scope scope;
+  private final PropScope scope;
   private final TableId tableId;
   private final Map<String,PropValue> delegateMap = new HashMap<>();
 
-  private TableProps(final TableConfigStore.Scope scope, final TableId tableId){
+  private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+  private final ReentrantReadWriteLock.ReadLock rlock = rwLock.readLock();
+  private final ReentrantReadWriteLock.WriteLock wlock = rwLock.writeLock();
+
+
+  private TableProps(final PropScope scope, final TableId tableId){
     this.scope = scope;
     this.tableId = tableId;
   }
 
   public static TableProps forTableId(final TableId tableId){
-    return new TableProps(TableConfigStore.Scope.TABLE, tableId);
+    return new TableProps(PropScope.TABLE, tableId);
   }
 
   public static TableProps forSystem(){
-    return new TableProps(TableConfigStore.Scope.SYSTEM, null);
+    return new TableProps(PropScope.SYSTEM, null);
   }
 
   @Override public int size() {
-    return delegateMap.size();
+    rlock.lock();
+    try {
+      return delegateMap.size();
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public boolean isEmpty() {
-    return delegateMap.isEmpty();
+    rlock.lock();
+    try {
+      return delegateMap.isEmpty();
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public boolean containsKey(Object key) {
-    return delegateMap.containsKey(key);
+    rlock.lock();
+    try {
+      return delegateMap.containsKey(key);
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public boolean containsValue(Object value) {
-    return delegateMap.containsValue(value);
+    rlock.lock();
+    try {
+      return delegateMap.containsValue(value);
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public PropValue get(Object key) {
-    return delegateMap.get(key);
+    rlock.lock();
+    try {
+      return delegateMap.get(key);
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public PropValue put(String key, PropValue value) {
-    return delegateMap.put(key, value);
+    wlock.lock();
+    try {
+      return delegateMap.put(key, value);
+    }finally{
+      wlock.unlock();
+    }
   }
 
   @Override public PropValue remove(Object key) {
-    return delegateMap.remove(key);
+    wlock.lock();
+    try {
+      return delegateMap.remove(key);
+    }finally{
+      wlock.unlock();
+    }
   }
 
   @Override public void putAll(Map<? extends String,? extends PropValue> m) {
-    delegateMap.putAll(m);
+    wlock.lock();
+    try {
+      delegateMap.putAll(m);
+    }finally{
+      wlock.unlock();
+    }
   }
 
   @Override public void clear() {
-    delegateMap.clear();
+    wlock.lock();
+    try {
+      delegateMap.clear();
+    }finally{
+      wlock.unlock();
+    }
   }
 
   @Override public Set<String> keySet() {
-    return delegateMap.keySet();
+    rlock.lock();
+    try {
+      return Collections.unmodifiableSet(delegateMap.keySet());
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public Collection<PropValue> values() {
-    return delegateMap.values();
+    rlock.lock();
+    try {
+      return Collections.unmodifiableCollection(delegateMap.values());
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public Set<Entry<String,PropValue>> entrySet() {
-    return delegateMap.entrySet();
+    rlock.lock();
+    try {
+      return Collections.unmodifiableSet(delegateMap.entrySet());
+    }finally{
+      rlock.unlock();
+    }
   }
 
   @Override public String toString() {
-    return new StringJoiner(", ", TableProps.class.getSimpleName() + "[", "]").add("scope=" + scope)
-        .add("tableId=" + tableId).add("delegateMap=" + delegateMap).toString();
+    rlock.lock();
+    try {
+      return new StringJoiner(", ", TableProps.class.getSimpleName() + "[", "]").add("scope=" + scope)
+          .add("tableId=" + tableId).add("delegateMap=" + delegateMap).toString();
+    }finally{
+      rlock.unlock();
+    }
+  }
+
+  private static class SerDes {
+    private final static Gson gson = new Gson();
+    private static final TypeToken<Map<String,PropValue>> gsonDataType = new TypeToken<>() {
+    };
   }
 }
