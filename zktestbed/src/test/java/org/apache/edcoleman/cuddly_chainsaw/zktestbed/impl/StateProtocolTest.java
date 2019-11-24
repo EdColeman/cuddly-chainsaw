@@ -12,6 +12,8 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +53,30 @@ public class StateProtocolTest {
     ZkMap zkMap = new ZkMap(zooKeeper, "aTable");
     zkMap.update("foo", "value");
 
+  }
+
+  @Test public void zkMock() throws Exception {
+    ZooKeeper mockZooKeeper = EasyMock.createNiceMock(ZooKeeper.class);
+
+    EasyMock.expect(mockZooKeeper
+        .getData(EasyMock.isA(String.class), EasyMock.anyBoolean(), EasyMock.isA(Stat.class)))
+        .andAnswer(new IAnswer<byte[]>() {
+          @Override public byte[] answer() throws Throwable {
+            Stat stat = (Stat) EasyMock.getCurrentArguments()[2];
+            stat.setVersion(123);
+            return new byte[0];
+          }
+        });
+    EasyMock.replay(mockZooKeeper);
+
+    ZkMap zkMap = new ZkMap(mockZooKeeper, "aTable");
+    zkMap.update("foo", "value");
+
+    Stat stat = new Stat();
+    byte[] data = mockZooKeeper.getData(zkPathBase + "/3322", false, stat);
+
+    log.debug("data {}", data);
+    log.debug("stat: {}", stat);
   }
 
   private static class ZkMap {
@@ -116,9 +142,36 @@ public class StateProtocolTest {
 
     }
 
-    public void setVersion(final int version) {
+    public void setZNodeVersion(final int version) {
       this.version = version;
     }
+
+    enum MapState {
+      Init {
+        @Override MapState nextState() {
+          return Created;
+        }
+      }, Created {
+        @Override MapState nextState() {
+          return Unloaded;
+        }
+      }, Unloaded {
+        @Override MapState nextState() {
+          return Loaded;
+        }
+      }, Loaded {
+        @Override MapState nextState() {
+          return Deleting;
+        }
+      }, Deleting {
+        @Override MapState nextState() {
+          return this;
+        }
+      };
+
+      abstract MapState nextState();
+    }
+
   }
 
   private static class ZkStateCtx {
@@ -174,7 +227,7 @@ public class StateProtocolTest {
         boolean same = checkVersion(stat, ctx);
         if (!same) {
           ctx.backingMap.update(data);
-          ctx.backingMap.setVersion(stat.getVersion());
+          ctx.backingMap.setZNodeVersion(stat.getVersion());
         }
 
         log.info("Stat: {}", stat);
