@@ -2,6 +2,7 @@ package org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.accumulo.core.data.TableId;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.PropValue;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.ZkClient;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.ZkServer;
@@ -50,7 +51,7 @@ public class StateProtocolTest {
     create(zooKeeper, "/accumulo/123/config");
     create(zooKeeper, "/accumulo/123/config/aTable");
 
-    ZkMap zkMap = new ZkMap(zooKeeper, "aTable");
+    ZkMap zkMap = new ZkMap(zooKeeper, TableId.of("aTable"));
     zkMap.update("foo", "value");
 
   }
@@ -69,7 +70,7 @@ public class StateProtocolTest {
         });
     EasyMock.replay(mockZooKeeper);
 
-    ZkMap zkMap = new ZkMap(mockZooKeeper, "aTable");
+    ZkMap zkMap = new ZkMap(mockZooKeeper, TableId.of("aTable"));
     zkMap.update("foo", "value");
 
     Stat stat = new Stat();
@@ -86,12 +87,12 @@ public class StateProtocolTest {
     };
 
     private final ZooKeeper zooKeeper;
-    private final String tableId;
+    private final TableId tableId;
 
     private Map<String,String> data = new HashMap<>();
     private int version = -1;
 
-    public ZkMap(final ZooKeeper zooKeeper, final String tableId) {
+    public ZkMap(final ZooKeeper zooKeeper, final TableId tableId) {
       this.zooKeeper = zooKeeper;
       this.tableId = tableId;
     }
