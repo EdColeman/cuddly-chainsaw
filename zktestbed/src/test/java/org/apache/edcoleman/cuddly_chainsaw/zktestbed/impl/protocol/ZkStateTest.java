@@ -4,6 +4,7 @@ import org.apache.accumulo.core.data.TableId;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.ZkClient;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.ZkServer;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl.ZkMap;
+import org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl.ZooOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -41,10 +42,10 @@ class ZkStateTest {
 
     ZooKeeper zooKeeper = client.connect("localhost:" + zk.getZkPort());
 
-    create(zooKeeper, "/accumulo");
-    create(zooKeeper, "/accumulo/123");
-    create(zooKeeper, "/accumulo/123/config");
-    create(zooKeeper, "/accumulo/123/config/aTable");
+    ZooOps.create(zooKeeper, "/accumulo");
+    ZooOps.create(zooKeeper, "/accumulo/123");
+    ZooOps.create(zooKeeper, "/accumulo/123/config");
+    ZooOps.create(zooKeeper, "/accumulo/123/config/aTable");
 
     Stat s = zooKeeper.exists("/accumulo/123/config/aTable", false);
 
@@ -52,7 +53,7 @@ class ZkStateTest {
 
     log.info("A Stat {}", s);
     log.info("A Stat {}", z);
-    log.info("A Stat {}", prettyStat(z));
+    log.info("A Stat {}", ZooOps.prettyStat(z));
 
     ZkMap zkMap = new ZkMap(zooKeeper, TableId.of("aTable"));
     zkMap.update("foo", "value");
@@ -81,27 +82,6 @@ class ZkStateTest {
 
     log.debug("data {}", data);
     log.debug("stat: {}", stat);
-  }
-
-  private void create(final ZooKeeper zoo, String path) {
-    try {
-      zoo.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-    } catch (KeeperException.NodeExistsException ex) {
-      return;
-    } catch (InterruptedException ex) {
-      Thread.currentThread().interrupt();
-    } catch (KeeperException ex) {
-      throw new IllegalStateException(ex);
-    }
-  }
-
-  private String prettyStat(final Stat stat) {
-   return new StringJoiner(", ", "Stat[", "]").add("czxid=" + stat.getCzxid())
-        .add("mzxid=" + stat.getMzxid()).add("ctime=" + stat.getCtime())
-        .add("mtime=" + stat.getMtime()).add("version=" + stat.getVersion())
-        .add("cversion=" + stat.getCversion()).add("aversion=" + stat.getAversion())
-        .add("ephemeralOwner=" + stat.getEphemeralOwner()).add("dataLength=" + stat.getDataLength())
-        .add("numChildren=" + stat.getNumChildren()).add("pzxid=" + stat.getPzxid()).toString();
   }
 
   @Override public String toString() {

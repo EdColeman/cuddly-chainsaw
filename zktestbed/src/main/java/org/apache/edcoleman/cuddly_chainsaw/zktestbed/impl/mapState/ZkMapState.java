@@ -5,6 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.ZooKeeper;
 
+import java.util.StringJoiner;
+
 public abstract class ZkMapState {
 
   private final static Logger log = LogManager.getLogger();
@@ -17,6 +19,18 @@ public abstract class ZkMapState {
     this.tableId = tableId;
   }
 
+  public ZooKeeper getZooKeeper() {
+    return zooKeeper;
+  }
+
+  public TableId getTableId(){
+    return tableId;
+  }
+
   public abstract ZkMapState process();
 
+  @Override public String toString() {
+    return new StringJoiner(", ", this.getClass().getSimpleName() + "[", "]")
+        .add("tableId=" + tableId).toString();
+  }
 }
