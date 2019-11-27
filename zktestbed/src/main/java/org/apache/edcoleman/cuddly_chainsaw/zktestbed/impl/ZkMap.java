@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.accumulo.core.data.TableId;
 import org.apache.edcoleman.cuddly_chainsaw.zktestbed.PropValue;
+import org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl.mapState.ZkMapError;
+import org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl.mapState.ZkMapInit;
+import org.apache.edcoleman.cuddly_chainsaw.zktestbed.impl.mapState.ZkMapState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -34,20 +37,16 @@ public class ZkMap {
 
   private Map<String,String> data = new HashMap<>();
 
-  private MapState state = MapState.Invalid;
+  private ZkMapState state = new ZkMapError(null,null);
 
   public ZkMap(final ZooKeeper zooKeeper, final TableId tableId) throws IllegalStateException {
     this.zooKeeper = zooKeeper;
     this.tableId = tableId;
-    state = MapState.Init;
-    state = state.nextState(zooKeeper, tableId);
+    state =  new ZkMapInit(zooKeeper, TableId.of("a1b2"));
+    state = state.process();
   }
 
-  public static String getConfigPath(final TableId id) {
-    return "/accumulo/12345/" + id.canonical();
-  }
-
-  public MapState getState() {
+  public ZkMapState getState() {
     return state;
   }
 
@@ -107,56 +106,6 @@ public class ZkMap {
 
   public void setZNodeVersion(final int version) {
     this.zkNodeVersion.set(version);
-  }
-
-  enum MapState {
-    Invalid {
-      @Override MapState nextState(final ZooKeeper zooKeeper, final TableId tableId) {
-        return this;
-      }
-    }, Init {
-      @Override MapState nextState(final ZooKeeper zooKeeper, final TableId tableId) {
-        String path = ZkMap.getConfigPath(tableId);
-        try {
-          String n = zooKeeper
-              .create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-          if(n != null){
-            return MapState.Created.nextState(zooKeeper, tableId);
-          }
-          return MapState.Invalid;
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          return Invalid;
-        } catch (KeeperException.NoNodeException e) {
-          // thrown if parent does not exist.
-          throw new IllegalStateException("Parent node(s) do not exist for " + path, e);
-        } catch (KeeperException.NodeExistsException e) {
-          // node exists - try to load data
-          return MapState.Loaded.nextState(zooKeeper, tableId);
-        } catch (KeeperException e) {
-          throw new IllegalStateException("Could not create zkMap, unhandled zookeeper exception",
-              e);
-        }
-      }
-    }, Created {
-      @Override MapState nextState(final ZooKeeper zooKeeper, final TableId tableId) {
-        return Unloaded;
-      }
-    }, Unloaded {
-      @Override MapState nextState(final ZooKeeper zooKeeper, final TableId tableId) {
-        return Loaded;
-      }
-    }, Loaded {
-      @Override MapState nextState(final ZooKeeper zooKeeper, final TableId tableId) {
-        return Deleting;
-      }
-    }, Deleting {
-      @Override MapState nextState(final ZooKeeper zooKeeper, final TableId tableId) {
-        return this;
-      }
-    };
-
-    abstract MapState nextState(final ZooKeeper zooKeeper, final TableId tableId);
   }
 
 }
