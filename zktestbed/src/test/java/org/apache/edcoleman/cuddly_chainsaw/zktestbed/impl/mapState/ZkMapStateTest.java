@@ -79,7 +79,7 @@ class ZkMapStateTest {
         });
 
     // TODO create map to capture serialized version to return with zoo.getData()
-    
+
     // ZkMap map = new ZkMap(mockZooKeeper, TableId.of("a1b2c3"));
 
     EasyMock.replay(mockZooKeeper);
