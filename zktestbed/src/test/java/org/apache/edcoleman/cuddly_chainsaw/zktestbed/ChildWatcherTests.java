@@ -22,6 +22,39 @@ class ChildWatcherTests {
     server = new ZkServer();
   }
 
+  @Test public void childWatcher() throws Exception {
+    ZkClient client = new ZkClient();
+
+    ZooKeeper zoo = client.connect("localhost:" + server.getZkPort());
+
+    log.info("Connection: {}", zoo);
+
+    Watcher w = new LoggingWatcher("default");
+
+    Watcher existsWatcher = new LoggingWatcher("exists");
+
+    zoo.register(w);
+
+    log.info("create /a");
+    create(zoo, "/a");
+
+    // watch /a
+    zoo.exists("/a", existsWatcher);
+    zoo.exists("/a", false);
+    zoo.exists("/a", null);
+
+    create(zoo, "/a/b");
+
+    zoo.getChildren("/a", true);
+
+    log.info("create /a/c");
+    create(zoo, "/a/c");
+    log.info("create /a/d");
+    create(zoo, "/a/d");
+
+    zoo.setData("/a", new byte[0], -1);
+  }
+
   @Test public void connect() throws Exception {
 
     ZkClient client = new ZkClient();
@@ -30,7 +63,7 @@ class ChildWatcherTests {
 
     log.info("Connection: {}", zoo);
 
-    Watcher w = new LoggingWatcher();
+    Watcher w = new LoggingWatcher("default");
 
     zoo.register(w);
 
@@ -97,8 +130,12 @@ class ChildWatcherTests {
   }
   private static class LoggingWatcher implements Watcher {
 
+    private final String id;
+    public LoggingWatcher(final String id){
+      this.id = id;
+    }
     @Override public void process(WatchedEvent event) {
-      log.info("ZK Event: {}", event);
+      log.info("Id: {}, ZK Event: {}", id, event);
     }
   }
 }
