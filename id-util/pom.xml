@@ -23,7 +23,7 @@
   <packaging>jar</packaging>
   <description>Explore plugable event reporting architecture</description>
   <properties>
-    <log4j.version>2.17.0</log4j.version>
+    <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.plugin-version>3.5.4</maven.plugin-version>
