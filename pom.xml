@@ -24,7 +24,7 @@
   <description>cuddly-chainsaw a collection of utilities and modules for exploring an event and metrics reporting
     architecture is. This pom is for dependency declarations used in cuddly-chainsaw utilities and sub-projects.</description>
   <properties>
-    <accumulo.version>1.9.3</accumulo.version>
+    <accumulo.version>1.10.1</accumulo.version>
     <hadoop.version>2.9.2</hadoop.version>
     <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>11</maven.compiler.source>
