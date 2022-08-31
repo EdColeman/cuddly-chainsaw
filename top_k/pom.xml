@@ -24,7 +24,7 @@
   <description>Sample exploration for findind top_k and counting elements in large sets / streams</description>
   <properties>
     <accumulo.version>1.10.1</accumulo.version>
-    <hadoop.version>3.2.3</hadoop.version>
+    <hadoop.version>3.2.4</hadoop.version>
     <junit.version>5.5.1</junit.version>
     <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>11</maven.compiler.source>
