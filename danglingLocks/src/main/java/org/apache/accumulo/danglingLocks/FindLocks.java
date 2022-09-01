@@ -2,10 +2,7 @@ package org.apache.accumulo.danglingLocks;
 
 import org.apache.accumulo.core.Constants;
 import org.apache.accumulo.core.cli.ClientOpts;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.ClientConfiguration;
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.util.Pair;
@@ -31,27 +28,26 @@ public class FindLocks {
 
     public static Logger log = LoggerFactory.getLogger(FindLocks.class);
 
-    private final Connector connector;
+    private final Instance instance;
+    private final IZooReaderWriter zrw;
 
-    public FindLocks(ClientOpts opts) throws AccumuloException, AccumuloSecurityException, InterruptedException, KeeperException {
+    public FindLocks(ClientOpts opts) throws InterruptedException, KeeperException {
 
         ClientConfiguration clientConfig = ClientConfiguration.loadDefault();
 
         log.info("Config: {}", clientConfig.getKeys());
 
-        Instance instance = new ZooKeeperInstance(clientConfig);
-
-        connector = instance.getConnector(opts.getPrincipal(), opts.getToken());
+        instance = new ZooKeeperInstance(clientConfig);
 
         AdminUtil<String> admin = new AdminUtil<>(false);
 
         log.info("Admin: {}", admin);
-        IZooReaderWriter zk = new ZooReaderWriterFactory().getZooReaderWriter(
+        zrw = new ZooReaderWriterFactory().getZooReaderWriter(
                 instance.getZooKeepers(), instance.getZooKeepersSessionTimeOut(), "uno");
 
-        ZooStore<String> zs = new ZooStore<>(ZooUtil.getRoot(instance) + Constants.ZFATE, zk);
+        ZooStore<String> zs = new ZooStore<>(ZooUtil.getRoot(instance) + Constants.ZFATE, zrw);
 
-        AdminUtil.FateStatus fateStatus = admin.getStatus(zs, zk,
+        AdminUtil.FateStatus fateStatus = admin.getStatus(zs, zrw,
                 ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS, null, null);
 
         log.info("STATUS: {}", fateStatus.getTransactions());
@@ -61,36 +57,51 @@ public class FindLocks {
         fateStatus.getDanglingHeldLocks().forEach((k, v) -> log.info("H: k:{}, v:{}", k, v));
 
         Map<String, List<String>> h = fateStatus.getDanglingHeldLocks();
+
         Set<Id> txIds = new HashSet<>();
         List<Id> lockIds = parseTxLocks(fateStatus.getDanglingHeldLocks(), txIds);
 
         log.info("TX IDS: {}", txIds);
         log.info("LK IDS: {}", lockIds);
 
+        Set<String> canDelete = getDanglingLocks(lockIds, txIds);
+
+        log.info("DELETE ME :{}", canDelete);
+
+        List<String> currLocks = zrw.getChildren(ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS);
+        log.info("zoo locks: {}", currLocks);
+
+    }
+
+    private Set<String> getDanglingLocks(final List<Id> lockIds, Set<Id> txIds) {
         Set<String> canDelete = new HashSet<>();
 
         String basePath = ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS;
 
-        for(Id lid : lockIds){
-            String nodePath = basePath + "/" + lid.getId();
-            List<String> lockParent = zk.getChildren(nodePath);
-            log.info("lock nodes: {}", lockParent);
-            for(String parent : lockParent){
-                String lockPath = nodePath + "/" + parent;
-                log.info("Looking for: {}", lockPath);
-                Pair<String,Id> txId = parseLockInfo(new String(zk.getData(lockPath,null),UTF_8));
-                log.info("DATA: {} ", txId);
-                if(txIds.contains(txId.getSecond())){
-                    canDelete.add(lockPath);
+        for (Id lid : lockIds) {
+            try {
+                String nodePath = basePath + "/" + lid.getId();
+                List<String> lockParent = zrw.getChildren(nodePath);
+                log.info("lock nodes: {}", lockParent);
+                for (String parent : lockParent) {
+                    String lockPath = nodePath + "/" + parent;
+                    log.info("Looking for: {}", lockPath);
+                    Pair<String, Id> txId = parseLockInfo(new String(zrw.getData(lockPath, null), UTF_8));
+                    log.info("DATA: {} ", txId);
+                    if (txId != null && txIds.contains(txId.getSecond())) {
+                        canDelete.add(lockPath);
+                    }
                 }
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Interrupted reading ZooKeeper", ex);
+            } catch (KeeperException.NoNodeException ex) {
+                log.info("skipping lock node, it no longer exists in ZooKeeper", ex);
+            } catch (KeeperException ex) {
+                log.info("skipping lock node, it because of ZooKeeper exception", ex);
             }
         }
-
-        log.info("DELETE ME :{}", canDelete);
-
-        List<String> currLocks = zk.getChildren(ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS);
-        log.info("zoo locks: {}", currLocks);
-
+        return canDelete;
     }
 
     private List<Id> parseTxLocks(Map<String, List<String>> danglingLocks, Set<Id> txIds) {
@@ -98,8 +109,11 @@ public class FindLocks {
         for (Map.Entry<String, List<String>> e : danglingLocks.entrySet()) {
             txIds.add(new Id(e.getKey()));
             List<String> lockedIdList = e.getValue();
-            for (String s : lockedIdList) {
-                nodeNames.add(parseLockInfo(s).getSecond());
+            for (String lockString : lockedIdList) {
+                Pair<String, Id> lockInfo = parseLockInfo(lockString);
+                if (lockInfo != null) {
+                    nodeNames.add(lockInfo.getSecond());
+                }
             }
         }
         return nodeNames;
