@@ -31,49 +31,55 @@ public class FindLocks {
     private final Instance instance;
     private final IZooReaderWriter zrw;
 
+    public FindLocks(ClientOpts opts, final Instance instance, final IZooReaderWriter zrw){
+        this.instance = instance;
+        this.zrw = zrw;
+    }
+
     public FindLocks(ClientOpts opts) throws InterruptedException, KeeperException {
 
         ClientConfiguration clientConfig = ClientConfiguration.loadDefault();
 
-        log.info("Config: {}", clientConfig.getKeys());
-
         instance = new ZooKeeperInstance(clientConfig);
 
-        AdminUtil<String> admin = new AdminUtil<>(false);
-
-        log.info("Admin: {}", admin);
         zrw = new ZooReaderWriterFactory().getZooReaderWriter(
                 instance.getZooKeepers(), instance.getZooKeepersSessionTimeOut(), "uno");
+
+        execute();
+    }
+
+    private void execute() throws InterruptedException, KeeperException {
+
+        AdminUtil<String> admin = new AdminUtil<>(false);
 
         ZooStore<String> zs = new ZooStore<>(ZooUtil.getRoot(instance) + Constants.ZFATE, zrw);
 
         AdminUtil.FateStatus fateStatus = admin.getStatus(zs, zrw,
                 ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS, null, null);
 
-        log.info("STATUS: {}", fateStatus.getTransactions());
-        log.info("STATUS held: {}", fateStatus.getDanglingHeldLocks());
-        log.info("STATUS waiting: {}", fateStatus.getDanglingWaitingLocks());
-
-        fateStatus.getDanglingHeldLocks().forEach((k, v) -> log.info("H: k:{}, v:{}", k, v));
-
-        Map<String, List<String>> h = fateStatus.getDanglingHeldLocks();
-
-        Set<Id> txIds = new HashSet<>();
-        List<Id> lockIds = parseTxLocks(fateStatus.getDanglingHeldLocks(), txIds);
-
-        log.info("TX IDS: {}", txIds);
-        log.info("LK IDS: {}", lockIds);
-
-        Set<String> canDelete = getDanglingLocks(lockIds, txIds);
-
-        log.info("DELETE ME :{}", canDelete);
-
         List<String> currLocks = zrw.getChildren(ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS);
-        log.info("zoo locks: {}", currLocks);
+        log.debug("current zoo lock parents: {}", currLocks);
 
+        log.debug("transactions: {}", fateStatus.getTransactions());
+        log.debug("locks held: {}", fateStatus.getDanglingHeldLocks());
+        log.debug("locks waiting: {}", fateStatus.getDanglingWaitingLocks());
+
+        if(log.isDebugEnabled()) {
+            fateStatus.getDanglingHeldLocks().forEach((k, v) -> log.trace("DH: txid:{}, lock info:{}", k, v));
+            fateStatus.getDanglingWaitingLocks().forEach((k, v) -> log.trace("WH: txid:{}, lock info:{}", k, v));
+        }
+
+        Set<String> canDelete = getDanglingLocks(fateStatus.getDanglingHeldLocks());
+        canDelete.addAll(getDanglingLocks(fateStatus.getDanglingWaitingLocks()));
+
+        System.out.println("Candidate FATE locks for deletion");
+        canDelete.forEach(System.out::println);
     }
+    private Set<String> getDanglingLocks(Map<String, List<String>> fateLocks) {
+        
+        Set<Id> txIds = new HashSet<>();
+        List<Id> lockIds = parseTxLocks(fateLocks, txIds);
 
-    private Set<String> getDanglingLocks(final List<Id> lockIds, Set<Id> txIds) {
         Set<String> canDelete = new HashSet<>();
 
         String basePath = ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS;
@@ -82,12 +88,11 @@ public class FindLocks {
             try {
                 String nodePath = basePath + "/" + lid.getId();
                 List<String> lockParent = zrw.getChildren(nodePath);
-                log.info("lock nodes: {}", lockParent);
+                log.trace("lock nodes: {}", lockParent);
                 for (String parent : lockParent) {
                     String lockPath = nodePath + "/" + parent;
-                    log.info("Looking for: {}", lockPath);
                     Pair<String, Id> txId = parseLockInfo(new String(zrw.getData(lockPath, null), UTF_8));
-                    log.info("DATA: {} ", txId);
+                    log.trace("Looking for: {}, data {}", lockPath, txId);
                     if (txId != null && txIds.contains(txId.getSecond())) {
                         canDelete.add(lockPath);
                     }
@@ -131,7 +136,6 @@ public class FindLocks {
     }
 
     public static void main(String... args) throws Exception {
-
         ClientOpts opts = new ClientOpts();
         opts.parseArgs(FindLocks.class.getName(), args);
 
