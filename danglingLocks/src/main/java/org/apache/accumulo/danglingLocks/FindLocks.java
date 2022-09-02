@@ -1,5 +1,6 @@
 package org.apache.accumulo.danglingLocks;
 
+import com.beust.jcommander.Parameter;
 import org.apache.accumulo.core.Constants;
 import org.apache.accumulo.core.cli.ClientOpts;
 import org.apache.accumulo.core.client.ClientConfiguration;
@@ -31,24 +32,22 @@ public class FindLocks {
     private final Instance instance;
     private final IZooReaderWriter zrw;
 
-    public FindLocks(ClientOpts opts, final Instance instance, final IZooReaderWriter zrw){
+    public FindLocks(FindLockOpts opts, final Instance instance, final IZooReaderWriter zrw){
         this.instance = instance;
         this.zrw = zrw;
     }
 
-    public FindLocks(ClientOpts opts) throws InterruptedException, KeeperException {
+    public FindLocks(FindLockOpts opts) {
 
         ClientConfiguration clientConfig = ClientConfiguration.loadDefault();
 
-        instance = new ZooKeeperInstance(clientConfig);
+        instance = opts.getInstance();
 
         zrw = new ZooReaderWriterFactory().getZooReaderWriter(
                 instance.getZooKeepers(), instance.getZooKeepersSessionTimeOut(), "uno");
-
-        execute();
     }
 
-    private void execute() throws InterruptedException, KeeperException {
+    public void execute() throws InterruptedException, KeeperException {
 
         AdminUtil<String> admin = new AdminUtil<>(false);
 
@@ -136,10 +135,11 @@ public class FindLocks {
     }
 
     public static void main(String... args) throws Exception {
-        ClientOpts opts = new ClientOpts();
+        FindLockOpts opts = new FindLockOpts();
         opts.parseArgs(FindLocks.class.getName(), args);
 
-        new FindLocks(opts);
+        FindLocks findLocks = new FindLocks(opts);
+        findLocks.execute();
     }
 
     private static class Id {
@@ -170,5 +170,18 @@ public class FindLocks {
         public String toString() {
             return "Id{id='" + id + "'}";
         }
+    }
+    public static class FindLockOpts extends ClientOpts {
+        @Parameter(
+                names = {"-v", "--verbose"},
+                description = "print additional information during execution"
+        )
+        boolean verbose = false;
+
+        @Parameter(
+                names = {"--deleteFromZooKeeper"},
+                description = "delete found dangling locks from ZooKeeper"
+        )
+        boolean deleteFromZk = false;
     }
 }
