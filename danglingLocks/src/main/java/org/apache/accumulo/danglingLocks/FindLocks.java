@@ -17,11 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -79,7 +82,7 @@ public class FindLocks {
         Set<Id> txIds = new HashSet<>();
         List<Id> lockIds = parseTxLocks(fateLocks, txIds);
 
-        Set<String> canDelete = new HashSet<>();
+        Set<String> canDelete = new TreeSet<>();
 
         String basePath = ZooUtil.getRoot(instance) + Constants.ZTABLE_LOCKS;
 
