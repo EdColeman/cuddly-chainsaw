@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.accumulo.danglingLocks;
 
 import com.beust.jcommander.Parameter;
@@ -5,7 +21,6 @@ import org.apache.accumulo.core.Constants;
 import org.apache.accumulo.core.cli.ClientOpts;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.util.Pair;
 import org.apache.accumulo.core.zookeeper.ZooUtil;
 import org.apache.accumulo.fate.AdminUtil;
@@ -17,30 +32,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class FindLocks {
+public class FindDanglingLocks {
 
-    public static Logger log = LoggerFactory.getLogger(FindLocks.class);
+    public static Logger log = LoggerFactory.getLogger(FindDanglingLocks.class);
 
     private final Instance instance;
     private final IZooReaderWriter zrw;
 
-    public FindLocks(FindLockOpts opts, final Instance instance, final IZooReaderWriter zrw){
+    public FindDanglingLocks(FindLockOpts opts, final Instance instance, final IZooReaderWriter zrw){
         this.instance = instance;
         this.zrw = zrw;
     }
 
-    public FindLocks(FindLockOpts opts) {
+    public FindDanglingLocks(FindLockOpts opts) {
 
         ClientConfiguration clientConfig = ClientConfiguration.loadDefault();
 
@@ -139,10 +152,10 @@ public class FindLocks {
 
     public static void main(String... args) throws Exception {
         FindLockOpts opts = new FindLockOpts();
-        opts.parseArgs(FindLocks.class.getName(), args);
+        opts.parseArgs(FindDanglingLocks.class.getName(), args);
 
-        FindLocks findLocks = new FindLocks(opts);
-        findLocks.execute();
+        FindDanglingLocks findDanglingLocks = new FindDanglingLocks(opts);
+        findDanglingLocks.execute();
     }
 
     private static class Id {
