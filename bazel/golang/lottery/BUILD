@@ -3,10 +3,7 @@ load("@rules_go//go:def.bzl", "go_binary", "go_library")
 
 gazelle(name = "gazelle")
 
-# load("@io_bazel_rules_go//go:def.bzl", "go_binary")
-
 # gazelle:prefix EdColeman/cuddly-chainsaw/bazel/golang/lottery/hello
-# gazelle:build_file_name BUILD,BUILD.bazel
 
 go_library(
     name = "a_lib",
