@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "sub1",
+    srcs = ["sub1.go"],
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel/golang/lottery/hello/golang/learning/stage3/sub1",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "sub1_test",
+    srcs = ["sub1_test.go"],
+    embed = [":sub1"],
+    size = "small",
+)

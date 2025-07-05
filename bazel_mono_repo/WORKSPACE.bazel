@@ -1,0 +1,22 @@
+# This file marks the root of the Bazel workspace.
+# See MODULE.bazel for external dependencies setup.
+
+load("//:deps.bzl", "go_dependencies")
+
+# gazelle:repository_macro deps.bzl%go_dependencies
+go_dependencies()
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "rules_python_gazelle_plugin",
+    sha256 = "8b98bfab75cd469bd5f9b63dc48a2f652b0348880006e5cb8299f4ee04292a95",
+    strip_prefix = "rules_python-1.5.0-rc4/gazelle",
+    url = "https://github.com/bazel-contrib/rules_python/releases/download/1.5.0-rc4/rules_python-1.5.0-rc4.tar.gz",
+)
+
+# To compile the rules_python gazelle extension from source,
+# we must fetch some third-party go dependencies that it uses.
+
+load("@rules_python_gazelle_plugin//:deps.bzl", _py_gazelle_deps = "gazelle_deps")
+
+_py_gazelle_deps()
