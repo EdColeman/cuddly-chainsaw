@@ -1,6 +1,6 @@
 load("@gazelle//:def.bzl", "gazelle")
 
-# gazelle:prefix github.com/EdColeman/cuddly-chainsaw/bazel/golang/lottery/hello
+# gazelle:prefix github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo
 gazelle(name = "gazelle")
 
 gazelle(

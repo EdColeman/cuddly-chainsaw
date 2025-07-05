@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_binary(
+    name = "ex1",
+    embed = [":ex1_lib"],
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "ex1_lib",
+    srcs = ["ex1.go"],
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/learning/ex1",
+    visibility = ["//visibility:private"],
+    deps = ["//golang/learning/ex1/sub1"],
+)

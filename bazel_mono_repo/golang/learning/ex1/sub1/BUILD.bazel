@@ -1,9 +1,9 @@
-load("@rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test", "nogo")
 
 go_library(
     name = "sub1",
     srcs = ["sub1.go"],
-    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/learning/stage3/sub1",
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/learning/ex1/sub1",
     visibility = ["//visibility:public"],
 )
 
@@ -12,4 +12,9 @@ go_test(
     size = "small",
     srcs = ["sub1_test.go"],
     embed = [":sub1"],
+    rundir = ".",
+)
+
+nogo(
+    name = "nogo",
 )

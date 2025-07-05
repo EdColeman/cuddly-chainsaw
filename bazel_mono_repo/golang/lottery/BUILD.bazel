@@ -3,7 +3,7 @@ load("@rules_go//go:def.bzl", "go_binary", "go_library")
 go_library(
     name = "lottery_lib",
     srcs = ["hello.go"],
-    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel/golang/lottery/hello/golang/lottery",
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/lottery",
     visibility = ["//visibility:private"],
 )
 
