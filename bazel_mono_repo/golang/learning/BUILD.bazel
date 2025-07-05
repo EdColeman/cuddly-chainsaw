@@ -1,0 +1,21 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "tutorial_lib",
+    srcs = ["tutorial1.go"],
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel/golang/tutorial/hello/golang/lottery",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "tutorial",
+    embed = [":learning_lib"],
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "learning_lib",
+    srcs = ["tutorial1.go"],
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel/golang/lottery/hello/golang/learning",
+    visibility = ["//visibility:private"],
+)
