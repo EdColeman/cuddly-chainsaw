@@ -12,7 +12,7 @@ go_test(
     size = "small",
     srcs = ["sub1_test.go"],
     embed = [":sub1"],
-    rundir = ".",
+    data = ["data/lines.txt"],
 )
 
 nogo(

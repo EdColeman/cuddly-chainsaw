@@ -8,5 +8,5 @@ import (
 func main() {
 	fmt.Println(sub1.Get())
 
-	fmt.Println(sub1.Read("./data/lines.txt"))
+	fmt.Println(sub1.Read("../data/lines.txt"))
 }
