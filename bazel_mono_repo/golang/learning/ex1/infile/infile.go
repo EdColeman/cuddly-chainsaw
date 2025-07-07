@@ -4,21 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strings"
 )
 
-var Lines = []string{
-	"line 1 💚",
-	"line 2",
-	"line 3",
-	"line 4",
-}
-
-func Get() string {
-	return Lines[rand.Intn(len(Lines))]
-	// return lines[0]
+type Record struct {
+	id    string
+	v1    string
+	state State
+	v2    int
 }
 
 func Read(filename string) string {
@@ -54,4 +48,30 @@ func Read(filename string) string {
 	}
 
 	return "a: " + filename
+}
+
+// State Define a custom type to represent the enum
+type State int
+
+// Define the enum values using iota
+const (
+	Unknown State = iota // 0
+	State1               // 1
+	State2               // 2
+	State3               // 3
+)
+
+// Define a map for string to State conversion
+var stateMap = map[string]State{
+	"State1": State1,
+	"State2": State2,
+	"State3": State3,
+}
+
+// ConvertStringToState converts a string to a State enum value
+func ConvertStringToState(s string) (State, error) {
+	if val, ok := stateMap[s]; ok {
+		return val, nil
+	}
+	return Unknown, fmt.Errorf("invalid color string: %s", s)
 }
