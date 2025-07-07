@@ -11,5 +11,8 @@ go_library(
     srcs = ["ex1.go"],
     importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/learning/ex1",
     visibility = ["//visibility:private"],
-    deps = ["//golang/learning/ex1/sub1"],
+    deps = [
+        "//golang/learning/ex1/infile",
+        "//golang/learning/ex1/sub1",
+    ],
 )

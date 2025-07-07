@@ -1,0 +1,9 @@
+# name: lines.txt
+#
+# header
+# id, v1, state, v2
+a, b, STATE1, 1
+b, b1, STATE1, 2
+c, c1, STATE2, 3
+d, b, STATE1, 3
+z, z1, STATE3, 99

@@ -1,0 +1,20 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test", "nogo")
+
+go_library(
+    name = "infile",
+    srcs = ["infile.go"],
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/learning/ex1/infile",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "infile_test",
+    size = "small",
+    srcs = ["infile_test.go"],
+    data = ["testdata/sample1.csv"],
+    embed = [":infile"],
+)
+
+nogo(
+    name = "nogo",
+)

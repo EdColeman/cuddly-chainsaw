@@ -11,8 +11,8 @@ go_test(
     name = "sub1_test",
     size = "small",
     srcs = ["sub1_test.go"],
+    data = ["testdata/lines.txt"],
     embed = [":sub1"],
-    data = ["data/lines.txt"],
 )
 
 nogo(

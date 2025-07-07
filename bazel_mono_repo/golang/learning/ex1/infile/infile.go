@@ -1,4 +1,4 @@
-package sub1
+package infile
 
 import (
 	"bufio"

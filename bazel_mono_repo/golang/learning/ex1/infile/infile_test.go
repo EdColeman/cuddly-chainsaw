@@ -1,4 +1,4 @@
-package sub1
+package infile
 
 import (
 	"fmt"
@@ -15,6 +15,6 @@ func TestGet(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	msg := Read("testdata/lines.txt")
+	msg := Read("testdata/sample1.csv")
 	fmt.Print("new msg: ", msg)
 }
