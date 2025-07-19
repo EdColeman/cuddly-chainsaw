@@ -13,6 +13,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//golang/learning/ex1/infile",
+        "//golang/learning/ex1/outfile",
         "//golang/learning/ex1/sub1",
     ],
 )

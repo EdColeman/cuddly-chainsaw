@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library", "nogo")
+
+go_library(
+    name = "outfile",
+    srcs = ["outfile.go"],
+    importpath = "github.com/EdColeman/cuddly-chainsaw/bazel_mono_repo/golang/learning/ex1/outfile",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_parquet_go_parquet_go//:go_default_library",
+        "@com_github_parquet_go_parquet_go//compress:go_default_library",
+        "@com_github_parquet_go_parquet_go//encoding:go_default_library",
+    ],
+)
+
+nogo(
+    name = "nogo",
+)

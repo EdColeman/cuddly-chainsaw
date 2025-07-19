@@ -7,6 +7,7 @@ load("//:deps.bzl", "go_dependencies")
 go_dependencies()
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 http_archive(
     name = "rules_python_gazelle_plugin",
     sha256 = "8b98bfab75cd469bd5f9b63dc48a2f652b0348880006e5cb8299f4ee04292a95",
