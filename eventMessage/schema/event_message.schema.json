@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event_message.schema.json",
+  "title": "Event",
+  "description": "Event tracing message",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "event message schema version"
+    },
+    "eventClassification": {
+      "type": "string",
+      "description": "the classification of the event"
+    },
+    "eventId": {
+      "type": "string",
+      "description": "a UUID v7 that is the parent id of the event when used to track multiple stages of an event"
+    },
+    "systemId": {
+      "type": "string",
+      "description": "the system generating the event. The hashtag (#) can be used to separate process and function names. The order should be system#sub1#sub2"
+    },
+    "eventType": {
+      "type": "string",
+      "description": "the event type. Event type can be used to filter"
+    },
+    "eventId1": {
+      "type": "string",
+      "description": "a UUIDv7 that can be used to group events with a sub process"
+    },
+    "eventId2": {
+      "type": "string",
+      "description": "a UUIDv7 that can be used to further group events with a sub process under an eventId1"
+    },
+    "sequenceNumber": {
+      "type": "string",
+      "description": "a sequence number used to order events within the same process or thread"
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "a timestamp used to order events within the same process or thread"
+    }
+  },
+  "info": {
+    "type": "array",
+    "items": {"$ref":  "#/$defs/info"},
+    "description": "optional information attributes as key, value pairs"
+  },
+  "$defs": {
+    "info": {
+      "type": "object",
+      "required": [ "k", "v" ],
+      "properties": {
+        "k": {
+          "type": "string",
+          "description": "info attribute key"
+        },
+        "v": {
+          "type": "string",
+          "description": "info attribute value"
+        }
+      }
+    }
+  },
+  "default": {},
+  "required": ["version", "eventClassification", "eventId", "systemId"]
+}
+

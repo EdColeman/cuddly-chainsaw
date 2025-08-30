@@ -1,0 +1,14 @@
+{
+    "version": "v0.1",
+    "eventClassification": "U",
+    "eventId": "111",
+    "systemId": "system#app#process1",
+    "eventType": "MEASUREMENT",
+    "eventId1": "222",
+    "eventId2": "333",
+    "sequenceNumber": "0",
+    "timestamp": "20250829 11:22:33.123",
+    "info": [{"k1": "v1"},{"k2": "v2"}]
+}
+
+
