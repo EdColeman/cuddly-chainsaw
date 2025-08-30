@@ -1,13 +1,13 @@
 {
-    "version": "v0.1",
+    "version": "1.0.0",
     "eventClassification": "U",
-    "eventId": "111",
+    "eventId": "0198fc0c-791c-79bb-9e9f-fe2edf707819",
     "systemId": "system#app#process1",
     "eventType": "MEASUREMENT",
-    "eventId1": "222",
-    "eventId2": "333",
+    "eventId1": "0198fc0f-8593-7c7b-9699-1c04e2c19eab",
+    "eventId2": "0198fc0f-8593-7320-8a13-b11d6d217a78",
     "sequenceNumber": "0",
-    "timestamp": "20250829 11:22:33.123",
+    "timestamp": "2025-08-29T11:22:33.123Z",
     "info": [{"k1": "v1"},{"k2": "v2"}]
 }
 

@@ -1,56 +1,65 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "event_message.schema.json",
-  "title": "Event",
+  "title": "EventMessage",
   "description": "Event tracing message",
   "type": "object",
   "properties": {
     "version": {
       "type": "string",
-      "description": "event message schema version"
+      "description": "event message schema version (required) in SemVer 2.0 format",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
     },
     "eventClassification": {
       "type": "string",
-      "description": "the classification of the event"
+      "description": "the classification of the event (required)"
     },
     "eventId": {
-      "type": "string",
-      "description": "a UUID v7 that is the parent id of the event when used to track multiple stages of an event"
+      "$ref": "#/$defs/uuid_v7"
     },
     "systemId": {
       "type": "string",
-      "description": "the system generating the event. The hashtag (#) can be used to separate process and function names. The order should be system#sub1#sub2"
+      "description": "the system generating the event. The hashtag (#) can be used to separate process and function names. The order should be system#sub1#sub2  (required)"
     },
     "eventType": {
       "type": "string",
-      "description": "the event type. Event type can be used to filter"
+      "description": "the event type. Event type can be used to filter (required)"
     },
     "eventId1": {
-      "type": "string",
-      "description": "a UUIDv7 that can be used to group events with a sub process"
+      "$ref": "#/$defs/uuid_v7"
     },
     "eventId2": {
-      "type": "string",
-      "description": "a UUIDv7 that can be used to further group events with a sub process under an eventId1"
+      "$ref": "#/$defs/uuid_v7"
     },
     "sequenceNumber": {
       "type": "string",
-      "description": "a sequence number used to order events within the same process or thread"
+      "description": "a sequence number used to order events within the same process or thread (optional)"
     },
     "timestamp": {
       "type": "string",
-      "description": "a timestamp used to order events within the same process or thread"
+      "description": "UTC, ISO-8601 formatted timestamp (YYYY-MM-DDThh:mm:ss.sssZ) used to order events within the same process or thread (optional)",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z$"
     }
   },
   "info": {
     "type": "array",
-    "items": {"$ref":  "#/$defs/info"},
+    "items": {
+      "$ref": "#/$defs/info"
+    },
     "description": "optional information attributes as key, value pairs"
   },
   "$defs": {
+    "uuid_v7": {
+      "type": "string",
+      "description": "a UUID v7 that is the parent id of the event when used to track multiple stages of an event (required)",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[7][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
     "info": {
       "type": "object",
-      "required": [ "k", "v" ],
+      "required": [
+        "k",
+        "v"
+      ],
       "properties": {
         "k": {
           "type": "string",
@@ -64,6 +73,12 @@
     }
   },
   "default": {},
-  "required": ["version", "eventClassification", "eventId", "systemId"]
+  "required": [
+    "version",
+    "eventClassification",
+    "eventId",
+    "systemId",
+    "eventType"
+  ]
 }
 
