@@ -28,6 +28,11 @@ def main():
         print(f"files: {files}")
 
         for filename in files:
+
+            # skip non-json files
+            if not filename.endswith(".json"):
+                continue
+
             input_name = os.path.join(input_dir, filename)
 
             print(f"filename:{input_name}")
@@ -49,7 +54,8 @@ def main():
                 print(f"Error: inputs json file not found: {input_name}")
                 exit()
             except ValidationError:
-                if not "error" in filename:
+                # exception raised and file does end with error.json
+                if not filename.endswith(".error.json"):
                     unexpected_error_files.append(filename)
                     unexpected_error_count += 1
             except json.JSONDecodeError:

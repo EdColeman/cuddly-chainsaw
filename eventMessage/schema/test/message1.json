@@ -6,7 +6,7 @@
     "eventType": "MEASUREMENT",
     "eventId1": "0198fc0f-8593-7c7b-9699-1c04e2c19eab",
     "eventId2": "0198fc0f-8593-7320-8a13-b11d6d217a78",
-    "sequenceNumber": "0",
+    "sequenceNumber": 1,
     "timestamp": "2025-08-29T11:22:33.123Z",
     "info": [{"k1": "v1"},{"k2": "v2"}]
 }

@@ -32,7 +32,7 @@
       "$ref": "#/$defs/uuid_v7"
     },
     "sequenceNumber": {
-      "type": "string",
+      "type": "integer",
       "description": "a sequence number used to order events within the same process or thread (optional)"
     },
     "timestamp": {
