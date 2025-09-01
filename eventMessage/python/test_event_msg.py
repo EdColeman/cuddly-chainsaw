@@ -1,31 +1,40 @@
 import json
 from event_msg import EventMessage
+from event_msg import MsgEncoder
+
 from jsonschema import validate
 
 schema_name = '../schema/event_message.schema.json'
 
-def func(x):
-    return x + 1
-
-
 def test_min_message():
-    msg1 = EventMessage("U","system1", "test")
-    # json_string = json.dumps(msg1, default=lambda o: o.__json__() if hasattr(o, '__json__') else o.__dict__)
-    # json_string = msg1.__json__()
-
     schema = load_schema()
 
-    validate(instance=json.loads(msg1.__json__()), schema=schema)
+    msg1 = EventMessage("U","system1", "test")
+    jstr = json.dumps(msg1, cls=MsgEncoder)
+    print(f"DUMP: {jstr}")
 
-    print(msg1.__json__())
+    validate(instance=json.loads(jstr), schema=schema)
 
-    # assert 1 == 2
+def test_info_message():
+    schema = load_schema()
+    msg1 = EventMessage("U","system1", "test")
+    msg1.add_info("k1", "v1")
+    msg1.add_info("k2", "v2")
 
+    jstr = json.dumps(msg1, cls=MsgEncoder)
+    print(f"DUMP: {jstr}")
+
+    validate(instance=json.loads(jstr), schema=schema)
+
+
+def custom_serializer(obj):
+    if isinstance(obj, EventMessage):
+        return { "eventClassification": obj.eventClassification, "eventId": str(obj.eventId), "info": obj.info }
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 def load_schema():
     try:
         with open(schema_name, 'r') as f:
-            global schema
             return json.load(f)
 
     except FileNotFoundError:
