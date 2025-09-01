@@ -1,5 +1,5 @@
 import uuid_utils as uuid
-
+import json
 class EventMessage:
 
     version = "1.0.0"
@@ -27,5 +27,7 @@ class EventMessage:
             "timestamp": self.timestamp,
             "info": self.info }
 
-        return {k: v for k, v in msg.items() if v is not None and v != "" and v != [] and v != {}}
+        cleaned = {k: v for k, v in msg.items() if v is not None and v != "" and v != [] and v != {}}
+
+        return  json.dumps(cleaned, default=lambda o: o.__json__() if hasattr(o, '__json__') else o.__dict__)
     

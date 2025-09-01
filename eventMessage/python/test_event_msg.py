@@ -10,17 +10,16 @@ def func(x):
 
 def test_min_message():
     msg1 = EventMessage("U","system1", "test")
-    json_string = json.dumps(msg1, default=lambda o: o.__json__() if hasattr(o, '__json__') else o.__dict__)
+    # json_string = json.dumps(msg1, default=lambda o: o.__json__() if hasattr(o, '__json__') else o.__dict__)
+    # json_string = msg1.__json__()
 
     schema = load_schema()
 
-    print(f"schema: {schema}")
-    print(f"message: {json_string}")
+    validate(instance=json.loads(msg1.__json__()), schema=schema)
 
-    validate(instance=json.loads(json_string), schema=schema)
+    print(msg1.__json__())
 
-    print(json_string)
-
+    # assert 1 == 2
 
 
 def load_schema():
