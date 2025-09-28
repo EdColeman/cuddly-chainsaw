@@ -1,8 +1,7 @@
 package difflines
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 	"testing"
 )
 
@@ -14,17 +13,17 @@ func Test_invalid_lines(t *testing.T) {
 	if !ok {
 		t.Errorf("diff failed")
 	}
-	if result.numLeft != len(left) {
-		t.Errorf("left count = %d, want %d", result.numLeft, len(left))
+	if result.NumLeft != len(left) {
+		t.Errorf("left count = %d, want %d", result.NumLeft, len(left))
 	}
-	if result.numRight != len(right) {
-		t.Errorf("right count = %d, want %d", result.numRight, len(right))
+	if result.NumRight != len(right) {
+		t.Errorf("right count = %d, want %d", result.NumRight, len(right))
 	}
-	if result.numLines != 0 {
-		t.Errorf("change count = %d, want %d", result.numLines, 0)
+	if result.NumLines != 0 {
+		t.Errorf("change count = %d, want %d", result.NumLines, 0)
 	}
-	if result.numSkipped != 2 {
-		t.Errorf("skip count = %d, want %d", result.numLines, 2)
+	if result.NumSkipped != 2 {
+		t.Errorf("skip count = %d, want %d", result.NumLines, 2)
 	}
 }
 
@@ -36,14 +35,14 @@ func Test_equal_lines(t *testing.T) {
 	if !ok {
 		t.Errorf("diff failed")
 	}
-	if result.numLeft != len(left) {
-		t.Errorf("left count = %d, want %d", result.numLeft, len(left))
+	if result.NumLeft != len(left) {
+		t.Errorf("left count = %d, want %d", result.NumLeft, len(left))
 	}
-	if result.numRight != len(right) {
-		t.Errorf("right count = %d, want %d", result.numRight, len(right))
+	if result.NumRight != len(right) {
+		t.Errorf("right count = %d, want %d", result.NumRight, len(right))
 	}
-	if result.numLines != 1 {
-		t.Errorf("change count = %d, want %d", result.numLines, 1)
+	if result.NumLines != 1 {
+		t.Errorf("change count = %d, want %d", result.NumLines, 1)
 	}
 }
 
@@ -55,14 +54,14 @@ func Test_changed_lines(t *testing.T) {
 	if !ok {
 		t.Errorf("diff failed")
 	}
-	if result.numLeft != len(left) {
-		t.Errorf("left count = %d, want %d", result.numLeft, len(left))
+	if result.NumLeft != len(left) {
+		t.Errorf("left count = %d, want %d", result.NumLeft, len(left))
 	}
-	if result.numRight != len(right) {
-		t.Errorf("right count = %d, want %d", result.numRight, len(right))
+	if result.NumRight != len(right) {
+		t.Errorf("right count = %d, want %d", result.NumRight, len(right))
 	}
-	if result.numLines != 1 {
-		t.Errorf("change count = %d, want %d", result.numLines, 1)
+	if result.NumLines != 1 {
+		t.Errorf("change count = %d, want %d", result.NumLines, 1)
 	}
 }
 func Test_deleted_lines(t *testing.T) {
@@ -71,19 +70,17 @@ func Test_deleted_lines(t *testing.T) {
 
 	result, ok := compareLines(left, right)
 
-	fmt.Print("deletes: ", result)
-
 	if !ok {
 		t.Errorf("diff failed")
 	}
-	if result.numLeft != len(left) {
-		t.Errorf("left count = %d, want %d", result.numLeft, len(left))
+	if result.NumLeft != len(left) {
+		t.Errorf("left count = %d, want %d", result.NumLeft, len(left))
 	}
-	if result.numRight != len(right) {
-		t.Errorf("right count = %d, want %d", result.numRight, len(right))
+	if result.NumRight != len(right) {
+		t.Errorf("right count = %d, want %d", result.NumRight, len(right))
 	}
-	if result.numLines != 2 {
-		t.Errorf("change count = %d, want %d", result.numLines, 2)
+	if result.NumLines != 2 {
+		t.Errorf("change count = %d, want %d", result.NumLines, 2)
 	}
 }
 
@@ -106,7 +103,7 @@ func Test_filter_lines(t *testing.T) {
 // Inouts
 // left
 // aaaaaa, 10   -> 10 (no change)
-// bbbbbb, 20   -> 21 (changed)
+// bbbbbb, 20   -> 21 (Changed)
 // cccccc, 30   -> 30 (no change)
 // dddddd, 40   -> (deleted)
 // eeeeee, 50   -> 50 (no change)
@@ -121,11 +118,10 @@ func Test_read_files(t *testing.T) {
 
 	result, ok := CompareFiles(leftPath, rightPath)
 	if !ok {
-		log.Fatalf("Failed to compare files")
+		slog.Error("Failed to compare files")
 	}
 	out := filter(result)
 	if len(out) != 6 {
 		t.Errorf("filtered output, received = %d, want %d", len(out), 6)
 	}
-	fmt.Println("OUT: ", out)
 }

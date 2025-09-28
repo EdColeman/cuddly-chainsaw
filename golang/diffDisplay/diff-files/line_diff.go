@@ -2,8 +2,7 @@ package difflines
 
 import (
 	"bufio"
-	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"sort"
 	"strconv"
@@ -38,13 +37,13 @@ func (s ChangeState) String() string {
 }
 
 type DiffResult struct {
-	numLeft    int // line count from let
-	numRight   int // line count from right
-	numLines   int // number of output lines
-	numSkipped int // number of invalid lines skipped
-	state      ChangeState
-	lines      []string
-	changed    map[string]Changes
+	NumLeft    int                // line count from let
+	NumRight   int                // line count from right
+	NumLines   int                // number of output Lines
+	NumSkipped int                // number of invalid Lines skipped
+	State      ChangeState        // the change
+	Lines      []string           // the lines in edit order
+	Changed    map[string]Changes // map with line changes
 }
 
 type Changes struct {
@@ -58,12 +57,12 @@ func CompareFiles(leftPath string, rightPath string) (DiffResult, bool) {
 
 	left, err := readLines(leftPath)
 	if err != nil {
-		log.Fatalf("failed to read file '%s' reason: %v", leftPath, err)
+		slog.Error("failed to read file '%s' reason: %v", leftPath, err)
 		return DiffResult{}, false
 	}
 	right, err := readLines(rightPath)
 	if err != nil {
-		log.Fatalf("failed to read file '%s' reason: %v", leftPath, err)
+		slog.Error("failed to read file '%s' reason: %v", leftPath, err)
 		return DiffResult{}, false
 	}
 
@@ -74,33 +73,24 @@ func compareLines(left, right []string) (DiffResult, bool) {
 
 	results := DiffResult{}
 
-	results.numLeft = len(left)
-	results.numRight = len(right)
-
-	fmt.Println("Lines read from left input file:")
-	for _, line := range left {
-		fmt.Println(line)
-	}
-	fmt.Println("Lines read from right right file:")
-	for _, line := range right {
-		fmt.Println(line)
-	}
+	results.NumLeft = len(left)
+	results.NumRight = len(right)
 
 	differ := myers.NewCustomDiffer(myers.WithContextLines(0),
 		myers.WithShowLineNumbers(true),
 		myers.WithFormatter(&results))
 
 	r, _ := differ.DiffStrings(left, right)
-	results.numLines, _ = strconv.Atoi(r)
+	results.NumLines, _ = strconv.Atoi(r)
 
 	return results, true
 
 }
 
 func filter(diffs DiffResult) []string {
-	result := make([]string, 0, len(diffs.lines))
-	for _, line := range diffs.lines {
-		m := diffs.changed[line]
+	result := make([]string, 0, len(diffs.Lines))
+	for _, line := range diffs.Lines {
+		m := diffs.Changed[line]
 
 		if m.state != Deleted {
 			s := m.text + ", " + m.value
@@ -109,17 +99,15 @@ func filter(diffs DiffResult) []string {
 	}
 	return result
 }
-func (d *DiffResult) Format(edits []diff.Line, options diff.FormatOptions) string {
+func (d *DiffResult) Format(edits []diff.Line, _ diff.FormatOptions) string {
 
-	d.lines = make([]string, 0, len(edits))
-	d.changed = make(map[string]Changes)
+	d.Lines = make([]string, 0, len(edits))
+	d.Changed = make(map[string]Changes)
 
-	for l, e := range edits {
-		fmt.Println(l, e.Kind, e.Text)
+	for _, e := range edits {
 		splits := strings.Split(e.Text, ",")
-		fmt.Println("format splits -> ", splits)
 		if len(splits) != 2 {
-			d.numSkipped++
+			d.NumSkipped++
 			continue
 		}
 
@@ -135,30 +123,22 @@ func (d *DiffResult) Format(edits []diff.Line, options diff.FormatOptions) strin
 		case diff.Equal:
 			state = NoChange
 		}
-		fmt.Println("format - detected state: ", state)
 
-		m, ok := d.changed[splits[0]]
+		m, ok := d.Changed[splits[0]]
 		if !ok {
-			// fmt.Println("format not found ->", key)
-			d.lines = append(d.lines, key)
+			d.Lines = append(d.Lines, key)
 			if state == Deleted {
 				// if delete set curr, prev to the value in the line
-				d.changed[key] = Changes{state, key, value, value}
+				d.Changed[key] = Changes{state, key, value, value}
 			} else {
-				// if changed
-				d.changed[key] = Changes{state, key, value, "n/a"}
+				// if Changed
+				d.Changed[key] = Changes{state, key, value, "n/a"}
 			}
 		} else {
-			fmt.Println("format found ->", m, "was: ", m.value, " -> ", value)
-			d.changed[key] = Changes{Changed, key, value, m.value}
+			d.Changed[key] = Changes{Changed, key, value, m.value}
 		}
-		fmt.Println("format progress ->", m)
 	}
-
-	fmt.Println("r->", d.lines)
-	fmt.Println("r->", d.changed)
-
-	return strconv.Itoa(len(d.lines))
+	return strconv.Itoa(len(d.Lines))
 }
 
 // return
