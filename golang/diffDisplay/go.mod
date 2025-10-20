@@ -1,6 +1,6 @@
 module diffDisplay
 
-go 1.25.1
+go 1.25.3
 
 require (
 	github.com/neticdk/go-stdlib v1.0.0

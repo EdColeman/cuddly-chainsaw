@@ -1,6 +1,7 @@
 package main
 
 import (
+	"diffDisplay/cmd/web"
 	lineDiff "diffDisplay/diff-files"
 	"fmt"
 	"log"
@@ -36,7 +37,7 @@ func main() {
 	fmt.Println("skipped:\n", result.NumSkipped)
 	fmt.Println("** DR **:\n", result.Changed)
 
-	server(htmlPort)
+	web.Server(htmlPort)
 }
 
 func readConfig() {
