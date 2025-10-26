@@ -2,23 +2,27 @@ package main
 
 import (
 	"diffDisplay/cmd/web"
+	"diffDisplay/config"
 	lineDiff "diffDisplay/diff-files"
 	"fmt"
-	"log"
+	"log/slog"
+	"os"
 
 	"github.com/spf13/viper"
 )
 
-//TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
-
 func main() {
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
+	slog.SetDefault(logger)
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./resources")
 
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
+		logger.Error("invalid configuration file", "error", err.Error())
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
@@ -26,19 +30,19 @@ func main() {
 	leftPath := viper.GetString("leftPath")
 	rightPath := viper.GetString("rightPath")
 
+	app := &config.Application{Logger: logger}
+
 	result, ok := lineDiff.CompareFiles(leftPath, rightPath)
 	if !ok {
-		log.Fatalf("Failed to compare files")
+		logger.Error("Failed to compare files")
+		os.Exit(1)
 	}
 
-	fmt.Println("left: ", result.NumLeft)
-	fmt.Println("right:\n", result.NumRight)
-	fmt.Println("changed:\n", result.NumLines)
-	fmt.Println("skipped:\n", result.NumSkipped)
-	fmt.Println("** DR **:\n", result.Changed)
+	fmt.Printf("left:%d\n", result.NumLeft)
+	fmt.Printf("right:%d\n", result.NumRight)
+	fmt.Printf("changed:%d\n", result.NumLines)
+	fmt.Printf("skipped:%d\n", result.NumSkipped)
+	fmt.Printf("** DR **:%v\n", result.Changed)
 
-	web.Server(htmlPort)
-}
-
-func readConfig() {
+	web.Server(app, htmlPort)
 }

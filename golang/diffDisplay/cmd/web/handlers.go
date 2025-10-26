@@ -25,6 +25,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
 func getHello(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
 	if err != nil {

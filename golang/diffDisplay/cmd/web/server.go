@@ -1,13 +1,15 @@
 package web
 
 import (
+	"diffDisplay/config"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
-func Server(serverPort int) {
-	fmt.Println("Called with serverPort", serverPort)
+func Server(app *config.Application, serverPort int) {
+
+	app.Logger.Info("Starting server on port %d", serverPort)
 
 	mux := http.NewServeMux()
 	// Handle GET requests to the root path
