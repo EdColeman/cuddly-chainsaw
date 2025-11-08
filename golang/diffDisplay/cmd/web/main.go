@@ -1,8 +1,6 @@
 package main
 
 import (
-	"diffDisplay/cmd/web"
-	"diffDisplay/config"
 	lineDiff "diffDisplay/diff-files"
 	"fmt"
 	"log/slog"
@@ -13,8 +11,9 @@ import (
 
 func main() {
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
-	slog.SetDefault(logger)
+	var appCtx = application{}
+	appCtx.logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
+	slog.SetDefault(appCtx.logger)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -22,7 +21,7 @@ func main() {
 
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		logger.Error("invalid configuration file", "error", err.Error())
+		appCtx.logger.Error("invalid configuration file", "error", err.Error())
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
@@ -30,11 +29,9 @@ func main() {
 	leftPath := viper.GetString("leftPath")
 	rightPath := viper.GetString("rightPath")
 
-	app := &config.Application{Logger: logger}
-
 	result, ok := lineDiff.CompareFiles(leftPath, rightPath)
 	if !ok {
-		logger.Error("Failed to compare files")
+		appCtx.logger.Error("Failed to compare files")
 		os.Exit(1)
 	}
 
@@ -44,5 +41,5 @@ func main() {
 	fmt.Printf("skipped:%d\n", result.NumSkipped)
 	fmt.Printf("** DR **:%v\n", result.Changed)
 
-	web.Server(app, htmlPort)
+	Server(&appCtx, htmlPort)
 }
