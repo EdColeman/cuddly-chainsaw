@@ -12,7 +12,7 @@ func Server(appCtx *application, serverPort int) {
 
 	mux := http.NewServeMux()
 	// Handle GET requests to the root path
-	mux.HandleFunc("GET /{$}", homePage)
+	mux.HandleFunc("GET /{$}", appCtx.homePageData)
 	// Handle GET requests to a sub path
 	mux.HandleFunc("GET /clicked", getSub)
 	// Handle POST requests to the root path

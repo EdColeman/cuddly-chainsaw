@@ -57,3 +57,19 @@ footer {
     background-color: transparent;
     color: darkred;
 }
+
+table {
+    width: 80%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: lightblue;
+    font-weight: bold;
+}

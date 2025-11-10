@@ -37,20 +37,20 @@ func (s ChangeState) String() string {
 }
 
 type DiffResult struct {
-	NumLeft    int                // line count from let
-	NumRight   int                // line count from right
-	NumLines   int                // number of output Lines
-	NumSkipped int                // number of invalid Lines skipped
-	State      ChangeState        // the change
-	Lines      []string           // the lines in edit order
-	Changed    map[string]Changes // map with line changes
+	NumLeft    int // line count from let
+	NumRight   int // line count from right
+	NumLines   int // number of output Lines
+	NumSkipped int // number of invalid Lines skipped
+	// State      ChangeState        // the change
+	Lines   []string           // the lines in edit order
+	Changed map[string]Changes // map with line changes
 }
 
 type Changes struct {
-	state     ChangeState
-	text      string
-	value     string
-	prevValue string
+	State     ChangeState
+	Text      string
+	Value     string
+	PrevValue string
 }
 
 func CompareFiles(leftPath string, rightPath string) (DiffResult, bool) {
@@ -92,8 +92,8 @@ func filter(diffs DiffResult) []string {
 	for _, line := range diffs.Lines {
 		m := diffs.Changed[line]
 
-		if m.state != Deleted {
-			s := m.text + ", " + m.value
+		if m.State != Deleted {
+			s := m.Text + ", " + m.Value
 			result = append(result, s)
 		}
 	}
@@ -135,7 +135,7 @@ func (d *DiffResult) Format(edits []diff.Line, _ diff.FormatOptions) string {
 				d.Changed[key] = Changes{state, key, value, "n/a"}
 			}
 		} else {
-			d.Changed[key] = Changes{Changed, key, value, m.value}
+			d.Changed[key] = Changes{Changed, key, value, m.Value}
 		}
 	}
 	return strconv.Itoa(len(d.Lines))

@@ -1,5 +1,5 @@
 
-GO_SRC = ./ ./diff-files
+GO_SRC = ./ 
 RESOURCES_DIR = ./resources
 
 HTMX_MIN_FILE = $(RESOURCES_DIR)/htmx.min.js

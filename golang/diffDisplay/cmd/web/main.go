@@ -1,7 +1,7 @@
 package main
 
 import (
-	lineDiff "diffDisplay/diff-files"
+	lineDiff "diffDisplay/internal/diff-files"
 	"fmt"
 	"log/slog"
 	"os"
@@ -34,6 +34,8 @@ func main() {
 		appCtx.logger.Error("Failed to compare files")
 		os.Exit(1)
 	}
+
+	appCtx.results(&result)
 
 	fmt.Printf("left:%d\n", result.NumLeft)
 	fmt.Printf("right:%d\n", result.NumRight)
