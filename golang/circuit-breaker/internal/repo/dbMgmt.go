@@ -166,7 +166,7 @@ func CreateTable(ctx context.Context, conn *pgxpool.Pool) {
 	q2 := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ("+
 		"id SERIAL PRIMARY KEY, "+
 		"url TEXT UNIQUE NOT NULL, "+
-		"state conn_state NOT NULL, "+
+		"state INTEGER NOT NULL, "+
 		"description TEXT, "+
 		"timeout TIMESTAMPTZ NULL, "+
 		"lastErrors TIMESTAMPTZ[]);", tableName)

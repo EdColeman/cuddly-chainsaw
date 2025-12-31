@@ -1,14 +1,16 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type ConnState int
 
 // allowed circuit breaker states
 const (
-	Open ConnState = iota
-	Closed
-	HalfOpen
+	Open     ConnState = 0 // stored externally - use explicit value instead of iota
+	Closed             = 1
+	HalfOpen           = 2
 )
 
 // ConnStateNames convert from ConnState enum to a string
@@ -31,12 +33,12 @@ func (cs ConnState) String() string {
 }
 
 type EndPoint struct {
-	Id          int64       `json:"id"`
-	Url         string      `json:"url"`
-	State       ConnState   `json:"state"`
-	Description string      `json:"description"`
-	Timeout     time.Time   `json:"timeout"`
-	LastErrors  []time.Time `json:"lastErrors"`
+	Id          int64        `json:"id"`
+	Url         string       `json:"url"`
+	State       int32        `json:"state"`
+	Description string       `json:"description"`
+	Timeout     *time.Time   `json:"timeout"`
+	LastErrors  *[]time.Time `json:"lastErrors"`
 }
 
 func NewEndPoint(url string, description string) EndPoint {
@@ -45,7 +47,7 @@ func NewEndPoint(url string, description string) EndPoint {
 		Url:         url,
 		State:       HalfOpen,
 		Description: description,
-		Timeout:     time.Time{},
+		Timeout:     &time.Time{},
 		LastErrors:  nil,
 	}
 }
