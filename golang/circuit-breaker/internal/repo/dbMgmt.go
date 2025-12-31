@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -33,7 +34,7 @@ func CreateNewEndPoint(ctx context.Context, pool *pgxpool.Pool, endPoint model.E
 	}()
 
 	stmt := `INSERT INTO ` + tableName + ` (url, state, description) ` +
-		`VALUES( @url, @state, @description)`
+		`VALUES(@url, @state, @description)`
 
 	args := pgx.NamedArgs{
 		"url":         endPoint.Url,
@@ -43,7 +44,8 @@ func CreateNewEndPoint(ctx context.Context, pool *pgxpool.Pool, endPoint model.E
 
 	_, err = pool.Exec(ctx, stmt, args)
 	if err != nil {
-
+		fmt.Println("Error inserting into the database:", err)
+		return err
 	}
 
 	err = tx.Commit(ctx)
@@ -107,8 +109,64 @@ func ListEndPointsFilter(ctx context.Context, pool *pgxpool.Pool, filter model.E
 	return p1, true
 }
 
-func CheckEndPointstate(ctx context.Context, pool *pgxpool.Pool, url string) bool {
-	return false
+func CheckEndPointState(ctx context.Context, pool *pgxpool.Pool, url string) (model.ConnState, error) {
+	tx, err := pool.Begin(ctx)
+
+	fmt.Println("Starting ListEndPointsFilter")
+
+	// on failure return circuit break open to inform the client to not make calls.
+	if err != nil {
+		fmt.Println("Failed to begin transaction", err)
+		return model.Open, err
+	}
+
+	// Defer a function to handle commit or rollback
+	defer func() {
+		if err != nil {
+			// Rollback if an error occurred during the transaction
+			fmt.Println("CheckEndPointstate rollback")
+			tx.Rollback(ctx)
+		} else {
+			// Commit if everything was successful
+			fmt.Println("CheckEndPointstate commit")
+			err = tx.Commit(ctx)
+		}
+	}()
+
+	stmt := "SELECT * FROM " + tableName + " WHERE url = $1"
+
+	rows, err := pool.Query(ctx, stmt, url)
+	if err != nil {
+		fmt.Println("Failed select for url "+url, err)
+		return model.Open, err
+	}
+
+	defer rows.Close()
+
+	fmt.Printf("Found %v+\n", rows)
+
+	for rows.Next() {
+		var endpoint model.EndPoint
+		err := rows.Scan(&endpoint.Id, &endpoint.Url, &endpoint.State, &endpoint.Description, &endpoint.Timeout, &endpoint.LastErrors)
+		if err != nil {
+			fmt.Println("Rows failed to scan", err)
+		}
+		fmt.Printf("Rows scanned found: %v+\n", endpoint)
+
+		state := model.ConnState(endpoint.State)
+		switch state {
+		case model.Open:
+			return model.Open, nil
+		case model.Closed:
+			return model.Closed, nil
+		case model.HalfOpen:
+			return model.Closed, nil
+		default:
+			return model.Open, errors.New("Url `" + url + "` state `" + model.ConnStateNames[state] + "` is undefined")
+		}
+	}
+
+	return model.Open, errors.New("Url `" + url + "` not found in database")
 }
 
 func ReportEndPointError(ctx context.Context, pool *pgxpool.Pool, url string) bool {

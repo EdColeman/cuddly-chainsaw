@@ -37,6 +37,13 @@ func main() {
 
 	fmt.Printf("EndPoints %v+\n", result)
 
+	state, err := repo.CheckEndPointState(ctx, pool, ep1.Url)
+	if err != nil {
+		fmt.Println("CheckEndPointState failed")
+	}
+
+	fmt.Println("CheckEndPointState current state " + model.ConnStateNames[state])
+
 	repo.TestQuery(ctx, pool)
 
 	stat := pool.Stat()

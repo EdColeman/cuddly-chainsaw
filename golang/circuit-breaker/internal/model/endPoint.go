@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"time"
 )
 
@@ -8,7 +9,7 @@ type ConnState int
 
 // allowed circuit breaker states
 const (
-	Open     ConnState = 0 // stored externally - use explicit value instead of iota
+	Open     ConnState = 0 // use explicit 0 value exported to database
 	Closed             = 1
 	HalfOpen           = 2
 )
@@ -35,7 +36,7 @@ func (cs ConnState) String() string {
 type EndPoint struct {
 	Id          int64        `json:"id"`
 	Url         string       `json:"url"`
-	State       int32        `json:"state"`
+	State       int          `json:"state"`
 	Description string       `json:"description"`
 	Timeout     *time.Time   `json:"timeout"`
 	LastErrors  *[]time.Time `json:"lastErrors"`
@@ -44,9 +45,9 @@ type EndPoint struct {
 func NewEndPoint(url string, description string) EndPoint {
 	return EndPoint{
 		Id:          0,
-		Url:         url,
-		State:       HalfOpen,
-		Description: description,
+		Url:         strings.TrimSpace(url),
+		State:       int(Closed),
+		Description: strings.TrimSpace(description),
 		Timeout:     &time.Time{},
 		LastErrors:  nil,
 	}
