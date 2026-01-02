@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/EdColeman/cuddly-chainsaw/golang/circuit-breaker/internal/model"
 	"github.com/jackc/pgx/v5"
@@ -153,20 +154,50 @@ func CheckEndPointState(ctx context.Context, pool *pgxpool.Pool, url string) (mo
 		}
 		fmt.Printf("Rows scanned found: %v+\n", endpoint)
 
-		state := model.ConnState(endpoint.State)
-		switch state {
-		case model.Open:
-			return model.Open, nil
-		case model.Closed:
-			return model.Closed, nil
-		case model.HalfOpen:
-			return model.Closed, nil
-		default:
-			return model.Open, errors.New("Url `" + url + "` state `" + model.ConnStateNames[state] + "` is undefined")
-		}
+		state, err := processState(ctx, pool, tx, endpoint)
+
+		return state, err
 	}
 
 	return model.Open, errors.New("Url `" + url + "` not found in database")
+}
+
+func processState(ctx context.Context, pool *pgxpool.Pool, tx pgx.Tx, endpoint model.EndPoint) (model.ConnState, error) {
+
+	state := model.ConnState(endpoint.State)
+	switch state {
+	case model.Open:
+		return model.Open, nil
+	case model.Closed:
+		checkTimeoutExpired(endpoint.Timeout)
+		return model.Closed, nil
+	case model.HalfOpen:
+		return model.Closed, nil
+	default:
+		return model.Open, errors.New("Url `" + endpoint.Url + "` state `" + model.ConnStateNames[state] + "` is undefined")
+	}
+
+}
+
+const timeoutThreshold = 5_000 // default 5 second timeout threshold
+
+// checkTimeoutExpired returns false if the endpoint timeout is less than the threshold. Returns true if
+// expired or nil.
+func checkTimeoutExpired(timeout *time.Time) bool {
+	if timeout == nil {
+		return true
+	}
+
+	now := time.Now().UTC()
+
+	delta := now.Sub(timeout.UTC()).Milliseconds()
+
+	if delta > timeoutThreshold {
+		fmt.Printf("timeout expired with %d milliseconds. Threshold is %d\n", delta, timeoutThreshold)
+		return true
+	}
+
+	return false
 }
 
 func ReportEndPointError(ctx context.Context, pool *pgxpool.Pool, url string) bool {
