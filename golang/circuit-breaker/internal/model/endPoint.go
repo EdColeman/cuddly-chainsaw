@@ -46,7 +46,7 @@ func NewEndPoint(url string, description string) EndPoint {
 	return EndPoint{
 		Id:          0,
 		Url:         strings.TrimSpace(url),
-		State:       int(Closed),
+		State:       Closed,
 		Description: strings.TrimSpace(description),
 		Timeout:     &time.Time{},
 		LastErrors:  nil,
