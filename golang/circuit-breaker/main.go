@@ -19,7 +19,12 @@ func main() {
 
 	fmt.Printf("Hello - user_env %v\n", pool)
 
+	fmt.Println("create types")
 	repo.CreateTypes(ctx, pool)
+
+	fmt.Printf("Hello - user_env %v\n", pool)
+
+	fmt.Println("create table")
 	repo.CreateTable(ctx, pool)
 
 	ep1 := model.NewEndPoint("http://localhost:8090", "system1")

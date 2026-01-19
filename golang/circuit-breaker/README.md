@@ -21,10 +21,11 @@ sudo -u postgres psql
 2 - create a user with password (change the username and password for your own env)
 
 ```
-CREATE USER cicuit_test WITH PASSWORD 'circuit-test-1-2-3';
-
-CREATE DATABASE circuit_test_db;
-
+CREATE USER circuit_test WITH ENCRYPTED PASSWORD 'circuit-test-1-2-3' LOGIN;
+CREATE DATABASE circuit_test_db OWNER circuit_test;
+```
+If you don't want the test user to be the owner 
+```
 GRANT ALL PRIVILEGES ON DATABASE circuit_test_db TO circuit_test;
 
 ```
