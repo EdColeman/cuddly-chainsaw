@@ -29,15 +29,16 @@ func main() {
 
 	ep1 := model.NewEndPoint("http://localhost:8090", "system1")
 
-	err := repo.CreateNewEndPoint(ctx, pool, ep1)
+	store := repo.NewStore(pool)
+	err := store.CreateNewEndPoint(ctx, ep1)
 	if err != nil {
 		fmt.Println("CreateEndPoint failed\n", err)
 		return
 	}
 
-	result, okay := repo.ListEndPoints(ctx, pool)
+	result, okay := store.ListEndPoints(ctx)
 	if !okay {
-		fmt.Println("ListEndPoints failed\n")
+		fmt.Println("ListEndPoints failed")
 	}
 
 	fmt.Printf("EndPoints %v+\n", result)

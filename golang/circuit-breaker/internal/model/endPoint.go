@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"strings"
 	"time"
 )
@@ -54,3 +55,11 @@ func NewEndPoint(url string, description string) EndPoint {
 }
 
 type EndPointFilter func(v EndPoint) bool
+
+
+type EndPointStore interface {
+	CreateNewEndPoint(ctx context.Context, endPoint EndPoint) error
+	ListEndPoints(ctx context.Context) (endpoints []EndPoint, ok bool)
+	ListEndPointsFilter(ctx context.Context, filter EndPointFilter) (endpoints []EndPoint, ok bool)
+
+}

@@ -34,3 +34,8 @@ log out of the psql shell abd test that you can connect:
 ```
  psql -U circuit_test -d circuit_test_db -h localhost -W
 ```
+
+## Environment Variables (for testing)
+
+DB_USERNAME=circuit_test 
+DB_USER_PASS=circuit-test-1-2-3
