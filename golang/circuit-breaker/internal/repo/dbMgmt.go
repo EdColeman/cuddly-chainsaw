@@ -2,107 +2,15 @@ package repo
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/EdColeman/cuddly-chainsaw/golang/circuit-breaker/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const tableName = "endpoints"
-
-func CheckEndPointState(ctx context.Context, pool *pgxpool.Pool, url string) (model.ConnState, error) {
-	tx, err := pool.Begin(ctx)
-
-	fmt.Println("Starting ListEndPointsFilter")
-
-	// on failure return circuit break open to inform the client to not make calls.
-	if err != nil {
-		fmt.Println("Failed to begin transaction", err)
-		return model.Open, err
-	}
-
-	// Defer a function to handle commit or rollback
-	defer func() {
-		if err != nil {
-			// Rollback if an error occurred during the transaction
-			fmt.Println("CheckEndPointstate rollback")
-			tx.Rollback(ctx)
-		} else {
-			// Commit if everything was successful
-			fmt.Println("CheckEndPointstate commit")
-			err = tx.Commit(ctx)
-		}
-	}()
-
-	stmt := "SELECT * FROM " + tableName + " WHERE url = $1"
-
-	rows, err := pool.Query(ctx, stmt, url)
-	if err != nil {
-		fmt.Println("Failed select for url "+url, err)
-		return model.Open, err
-	}
-
-	defer rows.Close()
-
-	fmt.Printf("Found %v+\n", rows)
-
-	for rows.Next() {
-		var endpoint model.EndPoint
-		err := rows.Scan(&endpoint.Id, &endpoint.Url, &endpoint.State, &endpoint.Description, &endpoint.Timeout, &endpoint.LastErrors)
-		if err != nil {
-			fmt.Println("Rows failed to scan", err)
-		}
-		fmt.Printf("Rows scanned found: %v+\n", endpoint)
-
-		state, err := processState(endpoint)
-
-		return state, err
-	}
-
-	return model.Open, errors.New("Url `" + url + "` not found in database")
-}
-
-func processState(endpoint model.EndPoint) (model.ConnState, error) {
-
-	state := model.ConnState(endpoint.State)
-	switch state {
-	case model.Open:
-		return model.Open, nil
-	case model.Closed:
-		checkTimeoutExpired(endpoint.Timeout)
-		return model.Closed, nil
-	case model.HalfOpen:
-		return model.Closed, nil
-	default:
-		return model.Open, errors.New("Url `" + endpoint.Url + "` state `" + model.ConnStateNames[state] + "` is undefined")
-	}
-
-}
-
-const timeoutThreshold = 5_000 // default 5 second timeout threshold
-
-// checkTimeoutExpired returns false if the endpoint timeout is less than the threshold. Returns true if
-// expired or nil.
-func checkTimeoutExpired(timeout *time.Time) bool {
-	if timeout == nil {
-		return true
-	}
-
-	now := time.Now().UTC()
-
-	delta := now.Sub(timeout.UTC()).Milliseconds()
-
-	if delta > timeoutThreshold {
-		fmt.Printf("timeout expired with %d milliseconds. Threshold is %d\n", delta, timeoutThreshold)
-		return true
-	}
-
-	return false
-}
 
 func ReportEndPointError(ctx context.Context, pool *pgxpool.Pool, url string) bool {
 	return false

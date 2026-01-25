@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/EdColeman/cuddly-chainsaw/golang/circuit-breaker/internal/model"
@@ -19,7 +20,7 @@ func NewStore(pool *pgxpool.Pool) *EndPointPgxStore {
 	}
 }
 
-func (s EndPointPgxStore) CreateNewEndPoint(ctx context.Context, endPoint model.EndPoint) error {
+func (s EndPointPgxStore) CreateEndPoint(ctx context.Context, endPoint model.EndPoint) error {
 	tx, err := s.pool.Begin(ctx)
 
 	if err != nil {
@@ -48,7 +49,7 @@ func (s EndPointPgxStore) CreateNewEndPoint(ctx context.Context, endPoint model.
 
 	_, err = s.pool.Exec(ctx, stmt, args)
 	if err != nil {
-		e2 := fmt.Errorf("Error inserting into the database %w", err)
+		e2 := fmt.Errorf("error inserting args: %+v into table %s: %w", args, tableName, err)
 		return e2
 	}
 
@@ -112,3 +113,55 @@ func (s EndPointPgxStore) ListEndPointsFilter(ctx context.Context, filter model.
 
 	return p1, true
 }
+func  (s EndPointPgxStore) CheckEndPointState(ctx context.Context, url string) (model.ConnState, error) {
+	tx, err := s.pool.Begin(ctx)
+
+	fmt.Println("Starting ListEndPointsFilter")
+
+	// on failure return circuit break open to inform the client to not make calls.
+	if err != nil {
+		fmt.Println("Failed to begin transaction", err)
+		return model.Open, err
+	}
+
+	// Defer a function to handle commit or rollback
+	defer func() {
+		if err != nil {
+			// Rollback if an error occurred during the transaction
+			fmt.Println("CheckEndPointstate rollback")
+			tx.Rollback(ctx)
+		} else {
+			// Commit if everything was successful
+			fmt.Println("CheckEndPointstate commit")
+			err = tx.Commit(ctx)
+		}
+	}()
+
+	stmt := "SELECT * FROM " + tableName + " WHERE url = $1"
+
+	rows, err := s.pool.Query(ctx, stmt, url)
+	if err != nil {
+		fmt.Println("Failed select for url "+url, err)
+		return model.Open, err
+	}
+
+	defer rows.Close()
+
+	fmt.Printf("Found %v+\n", rows)
+
+	for rows.Next() {
+		var endpoint model.EndPoint
+		err := rows.Scan(&endpoint.Id, &endpoint.Url, &endpoint.State, &endpoint.Description, &endpoint.Timeout, &endpoint.LastErrors)
+		if err != nil {
+			fmt.Println("Rows failed to scan", err)
+		}
+		fmt.Printf("Rows scanned found: %v+\n", endpoint)
+
+		state, err := model.ProcessState(endpoint)
+
+		return state, err
+	}
+
+	return model.Open, errors.New("Url `" + url + "` not found in database")
+}
+

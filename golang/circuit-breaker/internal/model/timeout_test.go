@@ -1,12 +1,9 @@
-package repo
+package model
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
-
-	"github.com/EdColeman/cuddly-chainsaw/golang/circuit-breaker/internal/model"
 )
 
 func TestTimeout(t *testing.T) {
@@ -39,11 +36,10 @@ func TestTimeout(t *testing.T) {
 
 func TestProcessState(t *testing.T) {
 
-	ctx := context.WithValue(context.Background(), "a", 123)
-	ep1 := model.NewEndPoint("http://localhost:8090", "system1")
+	ep1 := NewEndPoint("http://localhost:8090", "system1")
 
 	// ctx context.Context, pool *pgxpool.Pool, tx pgx.Tx
-	state, err := processState(ctx, nil, nil, ep1)
+	state, err := ProcessState(ep1)
 	if err != nil {
 		t.Errorf("got %b, err %v", state, err)
 		return

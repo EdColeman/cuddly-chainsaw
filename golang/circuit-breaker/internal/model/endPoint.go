@@ -2,9 +2,13 @@ package model
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 )
+
+const timeoutThreshold = 5_000 // default 5 second timeout threshold
 
 type ConnState int
 
@@ -56,10 +60,46 @@ func NewEndPoint(url string, description string) EndPoint {
 
 type EndPointFilter func(v EndPoint) bool
 
+func ProcessState(endpoint EndPoint) (ConnState, error) {
+
+	state := ConnState(endpoint.State)
+	switch state {
+	case Open:
+		return Open, nil
+	case Closed:
+		checkTimeoutExpired(endpoint.Timeout)
+		return Closed, nil
+	case HalfOpen:
+		return Closed, nil
+	default:
+		return Open, errors.New("Url `" + endpoint.Url + "` state `" + ConnStateNames[state] + "` is undefined")
+	}
+
+}
+
+// checkTimeoutExpired returns false if the endpoint timeout is less than the threshold. Returns true if
+// expired or nil.
+func checkTimeoutExpired(timeout *time.Time) bool {
+	if timeout == nil {
+		return true
+	}
+
+	now := time.Now().UTC()
+
+	delta := now.Sub(timeout.UTC()).Milliseconds()
+
+	if delta > timeoutThreshold {
+		fmt.Printf("timeout expired with %d milliseconds. Threshold is %d\n", delta, timeoutThreshold)
+		return true
+	}
+
+	return false
+}
+
 
 type EndPointStore interface {
-	CreateNewEndPoint(ctx context.Context, endPoint EndPoint) error
+	CreateEndPoint(ctx context.Context, endPoint EndPoint) error
+	CheckEndPointState(ctx context.Context, url string) (ConnState, error)
 	ListEndPoints(ctx context.Context) (endpoints []EndPoint, ok bool)
 	ListEndPointsFilter(ctx context.Context, filter EndPointFilter) (endpoints []EndPoint, ok bool)
-
 }

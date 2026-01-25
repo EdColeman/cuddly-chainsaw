@@ -30,7 +30,8 @@ func main() {
 	ep1 := model.NewEndPoint("http://localhost:8090", "system1")
 
 	store := repo.NewStore(pool)
-	err := store.CreateNewEndPoint(ctx, ep1)
+
+	err := store.CreateEndPoint(ctx, ep1)
 	if err != nil {
 		fmt.Println("CreateEndPoint failed\n", err)
 		return
@@ -43,7 +44,7 @@ func main() {
 
 	fmt.Printf("EndPoints %v+\n", result)
 
-	state, err := repo.CheckEndPointState(ctx, pool, ep1.Url)
+	state, err := store.CheckEndPointState(ctx, ep1.Url)
 	if err != nil {
 		fmt.Println("CheckEndPointState failed")
 	}
