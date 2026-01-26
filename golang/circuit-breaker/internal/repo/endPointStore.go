@@ -38,7 +38,7 @@ func (s EndPointPgxStore) CreateEndPoint(ctx context.Context, endPoint model.End
 		}
 	}()
 
-	stmt := `INSERT INTO ` + tableName + ` (url, state, description) ` +
+	stmt := `INSERT INTO ` + model.TableName() + ` (url, state, description) ` +
 		`VALUES(@url, @state, @description)`
 
 	args := pgx.NamedArgs{
@@ -49,7 +49,7 @@ func (s EndPointPgxStore) CreateEndPoint(ctx context.Context, endPoint model.End
 
 	_, err = s.pool.Exec(ctx, stmt, args)
 	if err != nil {
-		e2 := fmt.Errorf("error inserting args: %+v into table %s: %w", args, tableName, err)
+		e2 := fmt.Errorf("error inserting args: %+v into table %s: %w", args, model.TableName(), err)
 		return e2
 	}
 
@@ -91,7 +91,7 @@ func (s EndPointPgxStore) ListEndPointsFilter(ctx context.Context, filter model.
 	}()
 
 	// stmt := `SELECT id, url, state, description, timeout, lasterrors FROM ` + tableName
-	stmt := `SELECT * FROM ` + tableName
+	stmt := `SELECT * FROM ` + model.TableName()
 
 	rows, err := s.pool.Query(ctx, stmt)
 	if err != nil {
@@ -137,7 +137,7 @@ func  (s EndPointPgxStore) CheckEndPointState(ctx context.Context, url string) (
 		}
 	}()
 
-	stmt := "SELECT * FROM " + tableName + " WHERE url = $1"
+	stmt := "SELECT * FROM " + model.TableName() + " WHERE url = $1"
 
 	rows, err := s.pool.Query(ctx, stmt, url)
 	if err != nil {
@@ -163,5 +163,9 @@ func  (s EndPointPgxStore) CheckEndPointState(ctx context.Context, url string) (
 	}
 
 	return model.Open, errors.New("Url `" + url + "` not found in database")
+}
+
+func  (s EndPointPgxStore) ReportEndPointError(ctx context.Context, url string) bool {
+	return false
 }
 

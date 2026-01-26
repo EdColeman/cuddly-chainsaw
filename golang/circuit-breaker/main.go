@@ -12,24 +12,20 @@ import (
 func main() {
 
 	ctx := context.Background()
-	dbUrl := repo.GetDbConnUrl()
+	dbMgr := repo.Connect(ctx)
+	defer dbMgr.Close()
 
-	pool := repo.ConnUrl(ctx, dbUrl)
-	defer pool.Close()
-
-	fmt.Printf("Hello - user_env %v\n", pool)
+	fmt.Printf("Hello - user_env %v\n", dbMgr)
 
 	fmt.Println("create types")
-	repo.CreateTypes(ctx, pool)
-
-	fmt.Printf("Hello - user_env %v\n", pool)
+	dbMgr.CreateTypes(ctx)
 
 	fmt.Println("create table")
-	repo.CreateTable(ctx, pool)
+	dbMgr.CreateTable(ctx)
 
 	ep1 := model.NewEndPoint("http://localhost:8090", "system1")
 
-	store := repo.NewStore(pool)
+	store := repo.NewStore(dbMgr.Pool())
 
 	err := store.CreateEndPoint(ctx, ep1)
 	if err != nil {
@@ -51,10 +47,8 @@ func main() {
 
 	fmt.Println("CheckEndPointState current state " + model.ConnStateNames[state])
 
-	repo.TestQuery(ctx, pool)
+	dbMgr.TestQuery(ctx)
 
-	stat := pool.Stat()
+	stat := dbMgr.Pool().Stat()
 	fmt.Printf("stat: %+v\n", stat)
-
-	pool.Close()
 }

@@ -8,6 +8,12 @@ import (
 	"time"
 )
 
+const tableName = "endpoints"
+
+func TableName() string {
+	return tableName
+}
+
 const timeoutThreshold = 5_000 // default 5 second timeout threshold
 
 type ConnState int
@@ -102,4 +108,5 @@ type EndPointStore interface {
 	CheckEndPointState(ctx context.Context, url string) (ConnState, error)
 	ListEndPoints(ctx context.Context) (endpoints []EndPoint, ok bool)
 	ListEndPointsFilter(ctx context.Context, filter EndPointFilter) (endpoints []EndPoint, ok bool)
+	ReportEndPointError(ctx context.Context, url string) bool
 }
