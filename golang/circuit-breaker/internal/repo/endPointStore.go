@@ -113,7 +113,7 @@ func (s EndPointPgxStore) ListEndPointsFilter(ctx context.Context, filter model.
 
 	return p1, true
 }
-func  (s EndPointPgxStore) CheckEndPointState(ctx context.Context, url string) (model.ConnState, error) {
+func (s EndPointPgxStore) CheckEndPointState(ctx context.Context, url string) (model.ConnState, error) {
 	tx, err := s.pool.Begin(ctx)
 
 	fmt.Println("Starting ListEndPointsFilter")
@@ -165,7 +165,6 @@ func  (s EndPointPgxStore) CheckEndPointState(ctx context.Context, url string) (
 	return model.Open, errors.New("Url `" + url + "` not found in database")
 }
 
-func  (s EndPointPgxStore) ReportEndPointError(ctx context.Context, url string) bool {
+func (s EndPointPgxStore) ReportEndPointError(ctx context.Context, url string) bool {
 	return false
 }
-

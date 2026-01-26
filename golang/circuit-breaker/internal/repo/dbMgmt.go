@@ -10,6 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const EnvUserNameKey = "DB_USERNAME"
+const EnvUserPassKey = "DB_USER_PASS"
+
 type DdMgmt interface {
 	CreateTable(ctx context.Context)
 	CreateTypes(ctx context.Context)
@@ -17,10 +20,14 @@ type DdMgmt interface {
 	Close() error
 }
 
+// force compile time error if DbMgmt methods not implemented
+func dbMgmtCheck() {
+	var _ DdMgmt = (*DbManager)(nil)
+}
+
 type DbManager struct {
 	pool *pgxpool.Pool
 }
-
 
 func Connect(ctx context.Context) *DbManager {
 
@@ -29,14 +36,14 @@ func Connect(ctx context.Context) *DbManager {
 	pool, err := pgxpool.New(ctx, dbUrl)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to to create database pool: %v\n", err)
-		os.Exit(1)
+		log.Panic("Unable to to create database pool", err)
 	}
 
 	err = pool.Ping(context.Background())
 	if err != nil {
-		log.Fatalf("Could not ping the database: %v\n", err)
+		log.Panic("Could not ping the database", err)
 	}
+
 	fmt.Println("Database ping successful!")
 
 	return &DbManager{
@@ -44,7 +51,7 @@ func Connect(ctx context.Context) *DbManager {
 	}
 }
 
-func (db DbManager)Close() error{
+func (db DbManager) Close() error {
 	if db.pool != nil {
 		fmt.Println("Closing database pool")
 		db.pool.Close()
@@ -53,21 +60,18 @@ func (db DbManager)Close() error{
 }
 
 func getDbConnUrl() string {
-	const envUserNameKey = "DB_USERNAME"
-	const envUserPassKey = "DB_USER_PASS"
-
 	const host = "localhost"
 	const port = 5432
 	const db = "circuit_test_db"
 
-	userEnv, exists := os.LookupEnv(envUserNameKey)
+	userEnv, exists := os.LookupEnv(EnvUserNameKey)
 	if !exists {
-		log.Fatalf("Database user_env name env variable %s not set`", envUserNameKey)
+		log.Panicf("Database user_env name env variable %s not set`", EnvUserNameKey)
 	}
 
-	passwdEnv, exists := os.LookupEnv(envUserPassKey)
+	passwdEnv, exists := os.LookupEnv(EnvUserPassKey)
 	if !exists {
-		log.Fatalf("Database user_env name env variable %s not set`", envUserPassKey)
+		log.Panicf("Database user_env name env variable %s not set`", EnvUserPassKey)
 	}
 
 	fmt.Printf("Hello - user_env %s, passwd_env %s\n", userEnv, passwdEnv)
@@ -79,11 +83,11 @@ func getDbConnUrl() string {
 	return dbUrl
 }
 
-func (db DbManager) Pool()  *pgxpool.Pool{
+func (db DbManager) Pool() *pgxpool.Pool {
 	return db.pool
 }
 
-func (db DbManager)TestQuery(ctx context.Context) {
+func (db DbManager) TestQuery(ctx context.Context) {
 	// SQL query to select table names from the information schema
 	query := `
 		SELECT table_name
@@ -95,7 +99,7 @@ func (db DbManager)TestQuery(ctx context.Context) {
 
 	rows, err := db.pool.Query(ctx, query)
 	if err != nil {
-		log.Fatalf("TestQuery failed: %v\n", err)
+		log.Panicf("TestQuery failed: %v\n", err)
 	}
 	defer rows.Close()
 
@@ -103,29 +107,29 @@ func (db DbManager)TestQuery(ctx context.Context) {
 	for rows.Next() {
 		var tableName string
 		if err := rows.Scan(&tableName); err != nil {
-			log.Fatalf("Unable to scan row: %v\n", err)
+			log.Panicf("Unable to scan row: %v\n", err)
 		}
 		fmt.Printf("- %s\n", tableName)
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Fatalf("Row iteration error: %v\n", err)
+		log.Panicf("Row iteration error: %v\n", err)
 	}
 
 	rows.Close()
 }
 
-func (db DbManager)CreateTypes(ctx context.Context) {
+func (db DbManager) CreateTypes(ctx context.Context) {
 	q1 := "CREATE TYPE conn_state AS ENUM ('OPEN', 'HALF-OPEN', 'CLOSED');"
 	result, err := db.pool.Query(ctx, q1)
 	if err != nil {
-		log.Fatalf("Failed to create ConnState enum type: %v\n", err)
+		log.Panicf("Failed to create ConnState enum type: %v\n", err)
 	}
 	defer result.Close()
 	result.Close()
 }
 
-func (db DbManager)CreateTable(ctx context.Context) {
+func (db DbManager) CreateTable(ctx context.Context) {
 	q2 := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ("+
 		"id SERIAL PRIMARY KEY, "+
 		"url TEXT UNIQUE NOT NULL, "+
@@ -136,7 +140,7 @@ func (db DbManager)CreateTable(ctx context.Context) {
 
 	result, err := db.pool.Query(ctx, q2)
 	if err != nil {
-		log.Fatalf("Failed to create %s: %v\n", model.TableName(), err)
+		log.Panicf("Failed to create %s: %v\n", model.TableName(), err)
 	}
 	defer result.Close()
 	result.Close()

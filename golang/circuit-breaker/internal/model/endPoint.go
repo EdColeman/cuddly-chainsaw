@@ -102,7 +102,6 @@ func checkTimeoutExpired(timeout *time.Time) bool {
 	return false
 }
 
-
 type EndPointStore interface {
 	CreateEndPoint(ctx context.Context, endPoint EndPoint) error
 	CheckEndPointState(ctx context.Context, url string) (ConnState, error)
