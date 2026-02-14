@@ -48,6 +48,10 @@ func main() {
 	fileServer := http.FileServer(http.FS(httpFS))
 	mux.Handle("GET /static/", http.StripPrefix("/static", neuter(fileServer)))
 
+	mux.HandleFunc("PUT /put", appCtx.putHandler)
+
+	mux.HandleFunc("POST /post", appCtx.putHandler)
+
 	fmt.Println("Start server listening on Port: ", serverPort)
 	http.ListenAndServe(fmt.Sprintf(":%d", serverPort), mux)
 

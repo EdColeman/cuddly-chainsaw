@@ -8,11 +8,64 @@
     <script src="/static/js/htmx.2.0.8.min.js"></script>
 </head>
 <body>
-<header>
-    <h1><a href='/'>Body Header</a></h1>
-</header>
 <main>
-    main text here
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>State</th>
+            <th>Next Try</th>
+            <th>Endpoint</th>
+            <th>Update</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr id="endpoint_1">
+                <td>Nickname</td>
+                <td>
+                    <!-- <label><input type="checkbox" name="stated" value="yes"/></label> -->
+                    <input type="checkbox"
+                           hx-put="/put?endpoint_idx=eidx_1"
+                           name="status"
+                           hx-trigger="change"
+                           hx-target="closest tr"
+                           hx-swap="outerHTML" {% if is_checked %}checked{% endif %}>
+                </td>
+                <td>
+                    <label for="endpoint_1">
+                        <input type="text" name="name" value="John">
+                    </label>
+                </td>
+                <td>http://somewhere</td>
+                <td>
+                    <button type="button"
+                            hx-post="/post?endpoint_idx=eidx_1"
+                            hx-include="closest tr"
+                            hx-target="closest tr"
+                            hx-swap="outerHTML">
+                        Save
+                    </button>
+            </tr>
+        </tbody>
+    </table>
+    <form action="/submit_page" method="post">
+        <fieldset>
+            <legend>Select your favorite pet:</legend>
+            <div>
+                <input type="radio" id="dog" name="pet" value="dog" checked />
+                <label for="dog">Dog</label>
+            </div>
+            <div>
+                <input type="radio" id="cat" name="pet" value="cat" />
+                <label for="cat">Cat</label>
+            </div>
+            <div>
+                <input type="radio" id="fish" name="pet" value="fish" />
+                <label for="fish">Fish</label>
+            </div>
+        </fieldset>
+        <button type="submit">Submit</button>
+    </form>
 </main>
 <footer>"Footer text here"</footer>
 </body>
