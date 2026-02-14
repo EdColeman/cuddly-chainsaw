@@ -1,0 +1,60 @@
+package sample
+
+templ Header(){
+    <head>
+        <script src="./resources/htmx.js"></script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Diff Display Proto 0.0.1</title>
+    </head>
+}
+templ Line() {
+    <h2>Header 2</h2>
+}
+
+templ hello(name string) {
+    <div>
+        <h1>HTMX Button Example</h1>
+        @Button("Load Data",
+            "/clicked",
+            "#content",
+            "innerHTML",
+        )
+        <div id="content">
+            <!-- Content loaded by HTMX will appear here -->
+        </div>
+    </div>
+}
+
+
+templ Button(text string, hxGet string, hxTarget string, hxSwap string) {
+    <button
+        hx-get={ hxGet }
+        hx-target={ hxTarget }
+        hx-swap={ hxSwap }
+    >
+        { text }
+    </button>
+}
+
+templ clicked(text string) {
+<!DOCTYPE html>
+<div>
+    <h1>Welcome!</h1>
+    <script>
+        alert("Hello! This is a basic alert.");
+    </script>
+</div>
+}
+
+templ hello2(name string) {
+    @Header()
+    @Line()
+	<h1>Hello, { name }</h1>
+	<button hx-get="/clicked"
+        hx-trigger="click"
+        hx-target="body"
+        hx-swap="outerHTML">
+        Click Me!
+    </button>
+}

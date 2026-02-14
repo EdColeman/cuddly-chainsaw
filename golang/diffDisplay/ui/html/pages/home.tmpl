@@ -1,0 +1,67 @@
+{{define "title"}}Home{{end}}
+
+{{define "main"}}
+    <h2>start of table...</h2>
+    <button class="base-button accept-button"
+            hx-get="/clicked"
+            hx-target="#diff-results"
+            hx-confirm="Are you sure">Accept
+    </button>
+    <button class="base-button cancel-button"
+            hx-get="/clicked"
+            hx-target="#diff-results"
+            hx-confirm="Are you sure">Cancel
+    </button>
+    <h2>h2 text</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Current Line Count</th>
+            <th>New Line Count</th>
+            <th>Output Line Count</th>
+            <th>Number of Invalid Lines</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{.Summary.NumOrigLines}}</td>
+            <td>{{.Summary.NumProposedLines}}</td>
+            <td>{{.Summary.NumOutLines}}</td>
+            <td>{{.Summary.NumSkipped}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Value</th>
+            <th>Prev</th>
+            <th>Reason</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .DisplayLines}}
+            {{if eq .Change "added"}}
+                <tr style="background-color: palegreen">
+            {{else if eq .Change "nochange"}}
+                <tr style="background-color: lightgray">
+            {{else if eq .Change "deleted"}}
+                <tr style="background-color: lightpink">
+            {{else}}
+                <tr>
+            {{end}}
+
+            <td>{{.Text}}</td>
+            <td>{{.Original}}</td>
+            <td>{{.Update}}</td>
+            <td>{{.Change}}</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+    <div id="diff-results">
+        <p>waiting for server...</p>
+    </div>
+{{end}}
