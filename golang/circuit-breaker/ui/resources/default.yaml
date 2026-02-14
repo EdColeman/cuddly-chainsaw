@@ -1,0 +1,5 @@
+# test config
+---
+  port: 18082 # port for html server
+  leftPath : "./test_data/input1.csv"
+  rightPath : "./test_data/change1.csv"

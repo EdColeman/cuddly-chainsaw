@@ -1,0 +1,75 @@
+{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-family: "Courier New", monospace;
+}
+html, body {
+    height: 100%;
+}
+
+body {
+    line-height: 1.5;
+    background: #F1f3f6;
+    color: #34495E;
+    overflow-y: scroll;
+}
+
+header, nav, main {
+    padding: 2px 2px 2px 2px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center; /* Centers the text content within the footer */
+    padding: 15px 0;
+    /* Add other styling like background-color, padding, etc. */
+}
+
+.base-button {
+    border-radius: 10px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+.accept-button {
+    border: 2px solid darkgreen;
+    background-color: darkgreen;
+}
+.accept-button:hover {
+    background-color: transparent;
+    color: darkgreen;
+}
+
+.cancel-button {
+    border: 2px solid darkred;
+    background-color: darkred;
+}
+.cancel-button:hover {
+    background-color: transparent;
+    color: darkred;
+}
+
+table {
+    width: 80%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: lightblue;
+    font-weight: bold;
+}
