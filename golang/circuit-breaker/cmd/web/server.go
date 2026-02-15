@@ -49,7 +49,6 @@ func main() {
 	//// Handle POST requests to the root path
 	//mux.HandleFunc("POST /accept", acceptFile)
 
-
 	mux.HandleFunc("PUT /put", appCtx.putHandler)
 
 	mux.HandleFunc("POST /post", appCtx.postHandler)

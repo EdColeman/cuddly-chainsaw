@@ -12,19 +12,25 @@ import (
 
 var staticFiles = ui.StaticFiles
 
-type TableRow struct {
-	id string
-	name string
-	state    string
-	nextTry  string
-	endpoint string
+type PageData struct {
+	Title   string
+	Records map[string]TableRow
 }
 
-var memStore = map[string]TableRow {
-	"1" : {id: "1", name: "endpoint 1", state: "closed", nextTry: "0:00", endpoint: "http://spmewhere/"},
-	"2" : {id: "2", name: "endpoint 2", state: "open", nextTry: "0:30", endpoint: "http://nowhere/"},
-	"3" : {id: "3", name: "endpoint 3", state: "half", nextTry: "0:00", endpoint: "http://overhere/"},
+type TableRow struct {
+	Id       string
+	Name     string
+	State    string
+	NextTry  string
+	Endpoint string
 }
+
+var memStore = map[string]TableRow{
+	"1": {Id: "1", Name: "endpoint 1", State: "closed", NextTry: "0:00", Endpoint: "http://spmewhere/"},
+	"2": {Id: "2", Name: "endpoint 2", State: "open", NextTry: "0:30", Endpoint: "http://nowhere/"},
+	"3": {Id: "3", Name: "endpoint 3", State: "half", NextTry: "0:00", Endpoint: "http://overhere/"},
+}
+
 func (appCtx *application) getData(w http.ResponseWriter, r *http.Request) {
 	ts, err := template.ParseFS(staticFiles, "html/**/*.tmpl")
 	if err != nil {
@@ -32,9 +38,12 @@ func (appCtx *application) getData(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error - could not read template files", http.StatusInternalServerError)
 		return
 	}
-	err = ts.ExecuteTemplate(w, "home.tmpl", appCtx)
+	pd := PageData{Title: "A title", Records: memStore}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	err = ts.ExecuteTemplate(w, "data.tmpl", pd)
 	if err != nil {
 		log.Print(err.Error())
+		fmt.Printf("%s", fmt.Errorf("template error %w", err))
 		http.Error(w, "Internal Server Error - could not read home page template", http.StatusInternalServerError)
 	}
 }
@@ -43,6 +52,7 @@ func (appCtx *application) homePage(w http.ResponseWriter, r *http.Request) {
 	ts, err := template.ParseFS(staticFiles, "html/**/*.tmpl")
 	if err != nil {
 		log.Print(err.Error())
+		fmt.Printf("%s", fmt.Errorf("template error %w", err))
 		http.Error(w, "Internal Server Error - could not read template files", http.StatusInternalServerError)
 		return
 	}
@@ -88,7 +98,6 @@ func (appCtx *application) postHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("header target: %+v\n", r.Header.Get("Hx-Target"))
 	fmt.Printf("inout name: %+v\n", r.FormValue("name_inputter"))
 	fmt.Printf("inout status: %+v\n", r.FormValue("checkbox_status"))
-
 
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
