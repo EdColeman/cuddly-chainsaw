@@ -26,9 +26,9 @@ type TableRow struct {
 }
 
 var memStore = map[string]TableRow{
-	"1": {Id: "1", Name: "endpoint 1", State: "closed", NextTry: "0:00", Endpoint: "http://spmewhere/"},
-	"2": {Id: "2", Name: "endpoint 2", State: "open", NextTry: "0:30", Endpoint: "http://nowhere/"},
-	"3": {Id: "3", Name: "endpoint 3", State: "half", NextTry: "0:00", Endpoint: "http://overhere/"},
+	"1": {Id: "1", Name: "endpoint 1", State: "CLOSED", NextTry: "0:00", Endpoint: "http://spmewhere/"},
+	"2": {Id: "2", Name: "endpoint 2", State: "OPEN", NextTry: "0:30", Endpoint: "http://nowhere/"},
+	"3": {Id: "3", Name: "endpoint 3", State: "HALF", NextTry: "0:00", Endpoint: "http://overhere/"},
 }
 
 func (appCtx *application) getData(w http.ResponseWriter, r *http.Request) {

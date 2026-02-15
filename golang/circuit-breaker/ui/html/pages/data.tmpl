@@ -24,7 +24,27 @@
             <tr id={{printf "endpoint_%s" $key}}>
                 <td>{{$value.Name}}</td>
                 <td>
+                    <!--
                     <label><input type="checkbox" name="checkbox_status" value="yes"/></label>
+                    -->
+                    <!-- <label >STATE</label> -->
+                    <select name="checkbox_status" hx-get="/models" hx-target="#models" hx-indicator=".htmx-indicator">
+                        {{if eq $value.State "OPEN"}}
+                            <option value="OPEN" selected>OPEN</option>
+                        {{else}}
+                            <option value="OPEN">OPEN</option>
+                        {{end}}
+                        {{if eq $value.State "CLOSED"}}
+                            <option value="CLOSED" selected>CLOSED</option>
+                        {{else}}
+                            <option value="CLOSED">CLOSED</option>
+                        {{end}}
+                        {{if eq $value.State "HALF"}}
+                            <option value="HALF" selected>HALF</option>
+                        {{else}}
+                            <option value="HALF">HALF</option>
+                        {{end}}
+                    </select>
                 </td>
                 <td>
                     <input type="text" name="name_inputter" value={{$value.NextTry}}>
