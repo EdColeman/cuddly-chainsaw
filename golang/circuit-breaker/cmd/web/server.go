@@ -35,18 +35,20 @@ func main() {
 	// appCtx.logger.Info("Starting server on serverPort %d", serverPort)
 
 	mux := http.NewServeMux()
+	// create file system rooted at /static from the embedded file system
+	httpFS, err := fs.Sub(staticFiles, "static")
+	fileServer := http.FileServer(http.FS(httpFS))
+	mux.Handle("GET /static/", http.StripPrefix("/static", neuter(fileServer)))
+
 	// Handle GET requests to the root path
 	mux.HandleFunc("GET /{$}", appCtx.homePage)
 
+	mux.HandleFunc("GET /data", appCtx.getData)
 	//// Handle GET requests to a sub path
 	//mux.HandleFunc("GET /clicked", getSub)
 	//// Handle POST requests to the root path
 	//mux.HandleFunc("POST /accept", acceptFile)
 
-	// create file system rooted at /static from the embedded file system
-	httpFS, err := fs.Sub(staticFiles, "static")
-	fileServer := http.FileServer(http.FS(httpFS))
-	mux.Handle("GET /static/", http.StripPrefix("/static", neuter(fileServer)))
 
 	mux.HandleFunc("PUT /put", appCtx.putHandler)
 

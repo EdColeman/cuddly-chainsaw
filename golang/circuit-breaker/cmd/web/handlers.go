@@ -12,6 +12,33 @@ import (
 
 var staticFiles = ui.StaticFiles
 
+type TableRow struct {
+	id string
+	name string
+	state    string
+	nextTry  string
+	endpoint string
+}
+
+var memStore = map[string]TableRow {
+	"1" : {id: "1", name: "endpoint 1", state: "closed", nextTry: "0:00", endpoint: "http://spmewhere/"},
+	"2" : {id: "2", name: "endpoint 2", state: "open", nextTry: "0:30", endpoint: "http://nowhere/"},
+	"3" : {id: "3", name: "endpoint 3", state: "half", nextTry: "0:00", endpoint: "http://overhere/"},
+}
+func (appCtx *application) getData(w http.ResponseWriter, r *http.Request) {
+	ts, err := template.ParseFS(staticFiles, "html/**/*.tmpl")
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error - could not read template files", http.StatusInternalServerError)
+		return
+	}
+	err = ts.ExecuteTemplate(w, "home.tmpl", appCtx)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error - could not read home page template", http.StatusInternalServerError)
+	}
+}
+
 func (appCtx *application) homePage(w http.ResponseWriter, r *http.Request) {
 	ts, err := template.ParseFS(staticFiles, "html/**/*.tmpl")
 	if err != nil {
