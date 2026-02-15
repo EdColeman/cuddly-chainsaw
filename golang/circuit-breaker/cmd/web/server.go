@@ -50,7 +50,7 @@ func main() {
 
 	mux.HandleFunc("PUT /put", appCtx.putHandler)
 
-	mux.HandleFunc("POST /post", appCtx.putHandler)
+	mux.HandleFunc("POST /post", appCtx.postHandler)
 
 	fmt.Println("Start server listening on Port: ", serverPort)
 	http.ListenAndServe(fmt.Sprintf(":%d", serverPort), mux)

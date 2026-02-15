@@ -34,7 +34,7 @@ func (appCtx *application) putHandler(w http.ResponseWriter, r *http.Request) {
 	// The Go 1.22+ router ensures this is a PUT request.
 	// We can now safely process the request body.
 
-	fmt.Printf("Received put request %+v", r)
+	fmt.Printf("Received put request handler %+v", r)
 
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -52,7 +52,16 @@ func (appCtx *application) postHandler(w http.ResponseWriter, r *http.Request) {
 	// The Go 1.22+ router ensures this is a PUT request.
 	// We can now safely process the request body.
 
-	fmt.Printf("Received post request %+v", r)
+	fmt.Printf("Received post request %+v\n", r)
+	fmt.Printf("Received post body %+v\n", r.Body)
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Received post form error %+v\n", err)
+	}
+	fmt.Printf("header target: %+v\n", r.Header.Get("Hx-Target"))
+	fmt.Printf("inout name: %+v\n", r.FormValue("name_inputter"))
+	fmt.Printf("inout status: %+v\n", r.FormValue("checkbox_status"))
+
 
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
