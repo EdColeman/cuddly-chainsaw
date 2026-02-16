@@ -96,7 +96,8 @@ func (appCtx *application) postHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Received post form error %+v\n", err)
 	}
 	fmt.Printf("header target: %+v\n", r.Header.Get("Hx-Target"))
-	fmt.Printf("inout name: %+v\n", r.FormValue("name_inputter"))
+	fmt.Printf("Index: %+v\n", r.URL.Query().Get("endpoint_idx"))
+	fmt.Printf("inout next try: %+v\n", r.FormValue("NextTryValue"))
 	fmt.Printf("inout status: %+v\n", r.FormValue("checkbox_status"))
 
 	bodyBytes, err := io.ReadAll(r.Body)
@@ -109,5 +110,5 @@ func (appCtx *application) postHandler(w http.ResponseWriter, r *http.Request) {
 	// In a real application, you would typically unmarshal the JSON
 	// body into a Go struct and update a resource (e.g., in a database).
 	// For this example, we just echo the length of the received data.
-	fmt.Fprintf(w, "Received PUT request. Body length: %d bytes\n", len(bodyBytes))
+	fmt.Fprintf(w, "Received POST request. Body length: %d bytes\n", len(bodyBytes))
 }

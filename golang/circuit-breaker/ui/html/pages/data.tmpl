@@ -28,7 +28,11 @@
                     <label><input type="checkbox" name="checkbox_status" value="yes"/></label>
                     -->
                     <!-- <label >STATE</label> -->
-                    <select name="checkbox_status" hx-get="/models" hx-target="#models" hx-indicator=".htmx-indicator">
+                    <select name="checkbox_status"
+                            hx-post="/post?endpoint_idx={{$key}}"
+                            hx-include="closest tr"
+                            hx-target="closest tr"
+                            hx-indicator=".htmx-indicator">
                         {{if eq $value.State "OPEN"}}
                             <option value="OPEN" selected>OPEN</option>
                         {{else}}
@@ -47,12 +51,12 @@
                     </select>
                 </td>
                 <td>
-                    <input type="text" name="name_inputter" value={{$value.NextTry}}>
+                    <input type="text" name="NextTryValue" value={{$value.NextTry}}>
                 </td>
                 <td>{{$value.Endpoint}}</td>
                 <td>
                     <button type="button"
-                            hx-post="/post?endpoint_idx=eidx_1"
+                            hx-post="/post?endpoint_idx={{$key}}"
                             hx-include="closest tr"
                             hx-target="closest tr"
                             hx-swap="outerHTML">
