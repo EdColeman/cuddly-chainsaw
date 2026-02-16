@@ -14,7 +14,7 @@ var staticFiles = ui.StaticFiles
 
 type PageData struct {
 	Title   string
-	Records map[string]TableRow
+	Records []TableRow
 }
 
 type TableRow struct {
@@ -25,10 +25,10 @@ type TableRow struct {
 	Endpoint string
 }
 
-var memStore = map[string]TableRow{
-	"1": {Id: "1", Name: "endpoint 1", State: "CLOSED", NextTry: "0:00", Endpoint: "http://spmewhere/"},
-	"2": {Id: "2", Name: "endpoint 2", State: "OPEN", NextTry: "0:30", Endpoint: "http://nowhere/"},
-	"3": {Id: "3", Name: "endpoint 3", State: "HALF", NextTry: "0:00", Endpoint: "http://overhere/"},
+var memStore = []TableRow{
+	{Id: "1", Name: "endpoint 1", State: "CLOSED", NextTry: "0:00", Endpoint: "http://spmewhere/"},
+	{Id: "2", Name: "endpoint 2", State: "OPEN", NextTry: "0:30", Endpoint: "http://nowhere/"},
+	{Id: "3", Name: "endpoint 3", State: "HALF", NextTry: "0:00", Endpoint: "http://overhere/"},
 }
 
 func (appCtx *application) getData(w http.ResponseWriter, r *http.Request) {
@@ -56,9 +56,13 @@ func (appCtx *application) homePage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error - could not read template files", http.StatusInternalServerError)
 		return
 	}
-	err = ts.ExecuteTemplate(w, "home.tmpl", appCtx)
+
+	pd := PageData{Title: "A title", Records: memStore}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	err = ts.ExecuteTemplate(w, "home.tmpl", pd)
 	if err != nil {
 		log.Print(err.Error())
+		fmt.Printf("%s", fmt.Errorf("template error %w", err))
 		http.Error(w, "Internal Server Error - could not read home page template", http.StatusInternalServerError)
 	}
 }

@@ -20,47 +20,65 @@
         </tr>
         </thead>
         <tbody>
-            <tr id="endpoint_1">
-                <td>Nickname</td>
+        {{ range $key, $value := .Records }}
+            <tr id={{printf "endpoint_%s" $key}}>
+                <td>{{$value.Name}}</td>
                 <td>
-                    <label><input type="checkbox" name="checkbox_status" value="yes"/></label> -->
                     <!--
-                    <input type="checkbox"
-                           hx-put="/put?endpoint_idx=eidx_1"
-                           name="status"
-                           hx-trigger="change"
-                           hx-target="closest tr"
-                           hx-swap="outerHTML" {% if is_checked %}checked{% endif %}>
-                           -->
+                    <label><input type="checkbox" name="checkbox_status" value="yes"/></label>
+                    -->
+                    <!-- <label >STATE</label> -->
+                    <select name="checkbox_status"
+                            hx-post="/post?endpoint_idx={{$key}}"
+                            hx-include="closest tr"
+                            hx-target="closest tr"
+                            hx-indicator=".htmx-indicator">
+                        {{if eq $value.State "OPEN"}}
+                            <option value="OPEN" selected>OPEN</option>
+                        {{else}}
+                            <option value="OPEN">OPEN</option>
+                        {{end}}
+                        {{if eq $value.State "CLOSED"}}
+                            <option value="CLOSED" selected>CLOSED</option>
+                        {{else}}
+                            <option value="CLOSED">CLOSED</option>
+                        {{end}}
+                        {{if eq $value.State "HALF"}}
+                            <option value="HALF" selected>HALF</option>
+                        {{else}}
+                            <option value="HALF">HALF</option>
+                        {{end}}
+                    </select>
                 </td>
                 <td>
-                    <input type="text" name="name_inputter" value="John">
+                    <input type="text" name="NextTryValue" value={{$value.NextTry}}>
                 </td>
-                <td>http://somewhere</td>
+                <td>{{$value.Endpoint}}</td>
                 <td>
                     <button type="button"
-                            hx-post="/post?endpoint_idx=eidx_1"
+                            hx-post="/post?endpoint_idx={{$key}}"
                             hx-include="closest tr"
                             hx-target="closest tr"
                             hx-swap="outerHTML">
                         Save
                     </button>
             </tr>
+        {{ end }}
         </tbody>
     </table>
     <form action="/submit_page" method="post">
         <fieldset>
             <legend>Select your favorite pet:</legend>
             <div>
-                <input type="radio" id="dog" name="pet" value="dog" checked />
+                <input type="radio" id="dog" name="pet" value="dog" checked/>
                 <label for="dog">Dog</label>
             </div>
             <div>
-                <input type="radio" id="cat" name="pet" value="cat" />
+                <input type="radio" id="cat" name="pet" value="cat"/>
                 <label for="cat">Cat</label>
             </div>
             <div>
-                <input type="radio" id="fish" name="pet" value="fish" />
+                <input type="radio" id="fish" name="pet" value="fish"/>
                 <label for="fish">Fish</label>
             </div>
         </fieldset>

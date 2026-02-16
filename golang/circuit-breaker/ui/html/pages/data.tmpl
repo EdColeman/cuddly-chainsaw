@@ -20,49 +20,8 @@
         </tr>
         </thead>
         <tbody>
-        {{ range $key, $value := .Records }}
-            <tr id={{printf "endpoint_%s" $key}}>
-                <td>{{$value.Name}}</td>
-                <td>
-                    <!--
-                    <label><input type="checkbox" name="checkbox_status" value="yes"/></label>
-                    -->
-                    <!-- <label >STATE</label> -->
-                    <select name="checkbox_status"
-                            hx-post="/post?endpoint_idx={{$key}}"
-                            hx-include="closest tr"
-                            hx-target="closest tr"
-                            hx-indicator=".htmx-indicator">
-                        {{if eq $value.State "OPEN"}}
-                            <option value="OPEN" selected>OPEN</option>
-                        {{else}}
-                            <option value="OPEN">OPEN</option>
-                        {{end}}
-                        {{if eq $value.State "CLOSED"}}
-                            <option value="CLOSED" selected>CLOSED</option>
-                        {{else}}
-                            <option value="CLOSED">CLOSED</option>
-                        {{end}}
-                        {{if eq $value.State "HALF"}}
-                            <option value="HALF" selected>HALF</option>
-                        {{else}}
-                            <option value="HALF">HALF</option>
-                        {{end}}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="NextTryValue" value={{$value.NextTry}}>
-                </td>
-                <td>{{$value.Endpoint}}</td>
-                <td>
-                    <button type="button"
-                            hx-post="/post?endpoint_idx={{$key}}"
-                            hx-include="closest tr"
-                            hx-target="closest tr"
-                            hx-swap="outerHTML">
-                        Save
-                    </button>
-            </tr>
+        {{ range .Records }}
+            {{template "endpoint_row" .}}
         {{ end }}
         </tbody>
     </table>
