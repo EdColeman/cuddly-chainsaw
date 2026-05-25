@@ -19,3 +19,9 @@ container build -t dev-image-1:$(git rev-parse --short HEAD) --build-arg GIT_SHA
 
 container run -v /Users/edc/workspace/cuddly-chainsaw/tm_proto:/app -it dev-image-1:bcb1ecd /bin/bash
 
+## postgres container
+
+container run -d --name db1 -e POSTGRES_USER=ts_user -e POSTGRES_PASSWORD=dbpass987 -e POSTGRES_DB=ts_db -p 5432:5432 postgres:18
+
+## Using DNS
+
