@@ -1,0 +1,1 @@
+- [ ]. uv cache directory - install uv an dependices on container build [github issue](https://github.com/astral-sh/uv/issues/10051)

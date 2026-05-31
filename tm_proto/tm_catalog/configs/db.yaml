@@ -1,0 +1,8 @@
+# postgres database configuration
+database:
+  host: postgres-tm1.dev-domain
+  port: 5432
+  username: ts_user
+  password: dbpass987
+  dbname: ts_db
+# container cmd: container run -d --name db1 -e POSTGRES_PASSWORD=dbpass987 -p 5432:5432 postgres:18 
