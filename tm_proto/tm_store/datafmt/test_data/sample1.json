@@ -1,0 +1,22 @@
+[
+  {
+    "base":{
+      "parent_uuid":"123e4567-e89b-12d3-a456-426614171111",
+      "ckey":"ckey1"
+    },
+    "metadata_map":{
+      "key1":"value1",
+      "key2":"value2"
+    }
+  },
+  {
+    "base":{
+      "parent_uuid":"123e4567-e89b-12d3-a456-426614172222",
+      "ckey":"ckey1"
+    },
+    "metadata_map":{
+      "key1":"value3",
+      "key2":"value4"
+    }
+  }
+]
