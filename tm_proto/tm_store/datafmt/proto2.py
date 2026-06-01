@@ -36,11 +36,11 @@ payload_struct = pa.struct(
 tm_schema = pa.schema(
     [
         pa.field("parent_uuid", pa.string()),
-        ("record_uuid", pa.string()),
+        pa.field("record_uuid", pa.string()),
         pa.field("ckey", pa.string()),
         pa.field("role_access", access_struct),
         pa.field("edh", edh_struct),
-        pa.field("metadata_map", pa.map_(pa.string(), pa.string())),
+        pa.field("metadata_map", pa.map_(pa.string(), pa.string()), nullable=True),
         pa.field("payload", payload_struct),
     ]
 )
@@ -48,15 +48,28 @@ tm_schema = pa.schema(
 def create_sample_data():
     data = {
         "parent_uuid": "123e4567-e89b-12d3-a456-426614171111",
+        "record_uuid": "123e4567-e89b-12d3-a456-426614171222",
         "ckey": "ckey1",
-        "edh": {
-            "cstring": "some_cstring",
-            "l_cat": "some_l_cat",
-            "a_id": "some_a_id",
-            "received": int(pd.Timestamp.now().timestamp() * 1000)  # convert to ms    
+        "role_access": {
+            "access_group": "group1",
+            "intent": "test"
         },
-        "metadata_map": {"key1": "value1", "key2": "value2"}
-    }   
+        "edh": {
+            "cstring": "example_string",
+            "l_cat": "example_category",
+            "a_id": "example_id",
+            "received": 1700000000
+        },
+        "metadata_map": {"m1": "v1", "m2": "v2"},
+        "payload": {
+            "feature_id": "feature1",
+            "timestamp": pd.Timestamp.now().timestamp() * 1000,
+            "checksum": b"checksum",
+            "record_type": "type1",
+            "payload_encoding": "string",
+            "payload_data": b"payload_data"
+        }
+    }
 
     df = pd.DataFrame([data])
 
@@ -75,7 +88,11 @@ def main():
 
     json_str = df.to_json(orient="records", indent=2)
     print(f"Hello from datafmt!{json_str}")
-    
+
+    table = pa.Table.from_pandas(df, schema=tm_schema)
+
+    # 4. Safely output the structural table data to a Parquet file
+    pq.write_table(table, './test_data/sample1.parquet')
     # parse_options = pa.json.ParseOptions(newlines_in_values=True)  
     # table = pa.json.read_json("./test_data/sample1.json", parse_options=parse_options)
 

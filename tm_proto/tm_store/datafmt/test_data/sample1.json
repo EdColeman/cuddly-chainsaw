@@ -1,22 +1,57 @@
 [
   {
-    "base":{
-      "parent_uuid":"123e4567-e89b-12d3-a456-426614171111",
-      "ckey":"ckey1"
+    "parent_uuid":"123e4567-e89b-12d3-a456-426614171111",
+    "record_uuid":"123e4567-e89b-12d3-a456-426614171222",
+    "ckey":"ckey1",
+    "role_access":{
+      "access_group":"group1",
+      "intent":"test"
+    },
+    "edh":{
+      "cstring":"example_string",
+      "l_cat":"example_category",
+      "a_id":"example_id",
+      "received":1700000000
     },
     "metadata_map":{
-      "key1":"value1",
-      "key2":"value2"
+      "m1":"v1",
+      "m2":"v2"
+    },
+    "payload":{
+      "feature_id":"feature1",
+      "timestamp":1780265384541.7731933594,
+      "checksum":"checksum",
+      "record_type":"type1",
+      "payload_encoding":"string",
+      "payload_data":"payload_data"
     }
   },
   {
-    "base":{
-      "parent_uuid":"123e4567-e89b-12d3-a456-426614172222",
-      "ckey":"ckey1"
+    "parent_uuid":"123e4567-e89b-12d3-a456-426614173333",
+    "record_uuid":"123e4567-e89b-12d3-a456-426614174444",
+    "ckey":"ckey2",
+    "role_access":{
+      "access_group":"group2",
+      "intent":"test"
+    },
+    "edh":{
+      "cstring":"example_string",
+      "l_cat":"example_category",
+      "a_id":"example_id",
+      "received":1700000000
     },
     "metadata_map":{
-      "key1":"value3",
-      "key2":"value4"
+      "m3":"v3",
+      "m4":"v4"
+    },
+    "payload":{
+      "feature_id":"feature1",
+      "timestamp":1780264215336.1279296875,
+      "checksum":"checksum",
+      "record_type":"type1",
+      "payload_encoding":"string",
+      "payload_data":"payload_data"
     }
   }
 ]
+                   
