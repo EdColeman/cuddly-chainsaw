@@ -5,14 +5,14 @@ FROM registry.access.redhat.com/ubi9/ubi AS dev-base
 
 ARG GIT_SHA
 ENV VERSION=$GIT_SHA
-ENV GO_VERSION=1.26.4
+ENV GO_VERSION=1.26.5
 
-# Install Python 3.11 and Go
+# Install Python 3.14 and Go
 # UBI 9 provides standard packages for these through dnf
 RUN <<EOF
 
 dnf -y update && \
-dnf -y install git tar gzip unzip&& \
+dnf -y install git tar gzip unzip openssh-server jq && \
 dnf clean all
 
 curl -LsSf https://astral.sh/uv/install.sh | sh && \
@@ -37,6 +37,7 @@ curl -LO https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz && \
 
 mkdir -p /workspace 
 mkdir -p /tm_store
+mkdir /run/sshd
 
 EOF
 
@@ -45,6 +46,11 @@ ENV PATH=$PATH:/usr/local/go/bin:/usr/local/sam/dist
 
 # Set up your working directory
 WORKDIR /workspace
+
+RUN ssh-keygen -A
+RUN /usr/sbin/sshd
+
+RUN echo "dev image built successfully with Go ${GO_VERSION} and Python 3.14"
 
 # (Optional) Copy your requirements and install dependencies
 # COPY requirements.txt .
