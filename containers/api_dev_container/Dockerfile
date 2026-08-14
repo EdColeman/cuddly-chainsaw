@@ -5,7 +5,7 @@ FROM registry.access.redhat.com/ubi9/ubi AS dev-base
 
 ARG GIT_SHA
 ENV VERSION=$GIT_SHA
-ENV GO_VERSION=1.26.5
+ENV GO_VERSION=1.26.6
 
 RUN <<EOF
 

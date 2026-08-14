@@ -5,14 +5,14 @@ FROM registry.access.redhat.com/ubi9/ubi AS dev-base
 
 ARG GIT_SHA
 ENV VERSION=$GIT_SHA
-ENV GO_VERSION=1.26.6
+ENV GO_VERSION=1.26.4
 
-# Install Python 3.14 and Go
+# Install Python 3.11 and Go
 # UBI 9 provides standard packages for these through dnf
 RUN <<EOF
 
-dnf -y install git tar gzip unzip openssh-server jq && \
 dnf -y update && \
+dnf -y install git tar gzip unzip openssh-server jq && \
 dnf clean all
 
 curl -LsSf https://astral.sh/uv/install.sh | sh && \
@@ -35,19 +35,27 @@ curl -LO https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz && \
     tar -C /usr/local -xzf go${GO_VERSION}.linux-arm64.tar.gz && \
     rm go${GO_VERSION}.linux-arm64.tar.gz
 
-mkdir -p /cuddly-chainsaw 
+mkdir -p /workspace 
 mkdir -p /tm_store
 mkdir /run/sshd
 
 EOF
 
-ENV GOPATH=/go
-ENV PATH=$GOPATH/bin:/usr/local/go/bin:/usr/local/sam/dist:$PATH
+ENV PATH=$PATH:/usr/local/go/bin:/usr/local/sam/dist
+
 
 # Set up your working directory
-WORKDIR /cuddly-chainsaw
+WORKDIR /workspace
 
 RUN ssh-keygen -A
 RUN /usr/sbin/sshd
 
 RUN echo "dev image built successfully with Go ${GO_VERSION} and Python 3.14"
+
+# (Optional) Copy your requirements and install dependencies
+# COPY requirements.txt .
+# RUN pip3 install --no-cache-dir -r requirements.txt
+
+# (Optional) Set up Go environment
+# ENV GOPATH=/go
+# ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
