@@ -1,55 +1,65 @@
-# Stage 1: Build/Development Environment
+# Stage 1: Development Environment (Apple Silicon optimized)
 FROM registry.access.redhat.com/ubi9/ubi AS dev-base
 
-# Install packages using dnf (full package manager)
-
 ARG GIT_SHA
-ENV VERSION=$GIT_SHA
-ENV GO_VERSION=1.26.6
+ARG GO_VERSION=1.26.6
+ARG TARGETARCH=arm64
 
-RUN <<EOF
+ENV VERSION=$GIT_SHA \
+    GOPATH=/go \
+    PATH="/root/.local/bin:/usr/local/go/bin:/go/bin:/usr/local/sam/dist:$PATH"
 
-dnf -y install git tar gzip unzip openssh-server jq && \
-dnf -y update && \
-dnf clean all
+# System packages (cached layer)
+RUN dnf -y install --setopt=install_weak_deps=False \
+        git tar gzip unzip openssh-server jq ca-certificates sudo \
+    && dnf -y update \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
 
-curl -LsSf https://astral.sh/uv/install.sh | sh && \
-ln -s /root/.local/bin/uv /usr/local/bin/uv
+# uv + Python 3.14
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && ln -sf /root/.local/bin/uv /usr/local/bin/uv \
+    && uv python install 3.14
 
-ENV PATH="/root/.local/bin:$PATH"
+# AWS SAM CLI (arm64)
+RUN curl -LO "https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-${TARGETARCH}.zip" \
+    && mkdir -p /usr/local/sam \
+    && unzip aws-sam-cli-linux-${TARGETARCH}.zip -d /usr/local/sam \
+    && /usr/local/sam/install \
+    && rm -f aws-sam-cli-linux-${TARGETARCH}.zip
 
-uv python install 3.14
+# Go
+RUN curl -LO "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz" \
+    && tar -C /usr/local -xzf "go${GO_VERSION}.linux-${TARGETARCH}.tar.gz" \
+    && rm -f "go${GO_VERSION}.linux-${TARGETARCH}.tar.gz"
 
-curl -LO https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-arm64.zip && \
-    mkdir -p /usr/local/sam && \
-    unzip aws-sam-cli-linux-arm64.zip -d /usr/local/sam && \
-    /usr/local/sam/install.sh && \
-    rm aws-sam-cli-linux-arm64.zip
+    # templ CLI (type-safe HTML components for Go)
+RUN go install github.com/a-h/templ/cmd/templ@latest
 
-# specifies macos arch - arm64 instead of amd64
-curl -LO https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz && \
-    tar -C /usr/local -xzf go${GO_VERSION}.linux-arm64.tar.gz && \
-    rm go${GO_VERSION}.linux-arm64.tar.gz
+# Grok Build CLI
+RUN curl -fsSL https://x.ai/cli/install.sh | bash
 
-mkdir -p /donut-playground 
-mkdir -p /donut-data
-mkdir /run/sshd
+# Directories
+RUN mkdir -p /donut-playground /donut-data /run/sshd /root/.ssh \
+    && chmod 700 /root/.ssh
 
-# grok cli
-curl -fsSL https://x.ai/cli/install.sh | bash
+# Generate host keys once (required for sshd)
+RUN ssh-keygen -A
 
-EOF
-# (Optional) Set up Go environment and AWS SAM CLI environment variables
-ENV GOPATH=/go
-ENV PATH=$GOPATH/bin:/usr/local/go/bin::/usr/local/sam/dist:$PATH
+# Harden sshd for container use + VS Code
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
+    && sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config \
+    && echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config \
+    && echo "GatewayPorts no" >> /etc/ssh/sshd_config \
+    && echo "ClientAliveInterval 60" >> /etc/ssh/sshd_config \
+    && echo "ClientAliveCountMax 3" >> /etc/ssh/sshd_config
 
-ENV PATH=$PATH:/usr/local/go/bin:/usr/local/sam/dist
-
-
-# Set up your working directory
 WORKDIR /donut-playground
 
-RUN ssh-keygen -A
-RUN /usr/sbin/sshd
+# Expose SSH port
+EXPOSE 22
 
-RUN echo "dev image built successfully with Go ${GO_VERSION} and Python 3.14"
+# Start sshd in the foreground (required so the container stays alive)
+CMD ["/usr/sbin/sshd", "-D", "-e"]
